@@ -1,0 +1,175 @@
+.ml {
+    margin-left: 10px;
+}
+
+.nested-data-type_repeat_property {
+    background: white;
+    position: relative;
+    border-bottom: 1px solid rgba(0,0,0,0.35);
+}
+
+.nested-data-type_handle {
+    width: 12px;
+    display: inline;
+    background-color:rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.35);
+    align-self: stretch;
+    border-right: 0;
+    margin: 0;
+    line-height: 34px;
+}
+
+.nested-data-type_handle::before {
+    content: "";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    opacity: .35;
+    font-size: 10px;
+    line-height: 12px;
+}
+
+
+.hidden, .hidden, .hidden .value-uri {
+    display: none;
+}
+
+.nested-data-type_entity_label {
+    padding-left: 5px;
+    font-weight: 800;
+    background: rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.10);
+}
+
+.nested-data-type_repeat_property option, .nested-data-type_repeat_property input {
+    color: rgb(0 0 0 / 35%);
+}
+
+.nested-data-type_add_property {
+    margin-left: 10px !important;
+    cursor: pointer;
+}
+
+.inputs .nested-data-type_button {
+    margin: unset;
+    padding: unset;
+    background: none;
+    box-shadow: none;
+}
+
+.nested-data-type_button.nested-data-type_add_property, .nested-data-type_button.nested-data-type_add_resource {
+    background-color: rgba(0,0,0,0.08);
+    color: #676767;
+    border-radius: 3px;
+    border: 0;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 15%) inset;
+    padding: 6px 10px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 12px;
+    min-height: 0px;
+    margin-bottom: 12px;
+}
+
+.nested-data-type_add_property[class*="o-icon-"]::before {
+    padding-right: 5px;
+}
+
+.o-icon-delete.nested-data-type_remove_property, .nested-data-type_hide_property {
+    position: absolute;
+    display: block;
+    right: -25px;
+    /* top: 50%; */
+    top: 60px;
+    width: fit-content;
+    color: #cdcdcd;
+    cursor: pointer;
+}
+
+.nested-data-type_hide_property {
+    /* top: 20%; */
+    top: 30px;
+    right: -27px;
+}
+
+.nested-data-type_repeat_class {
+    margin-left: 1px;
+}
+
+.nested-data-type_repeat_class input {
+    width: calc(50% - 2px);
+    background: #FFF8E5;
+}
+
+.inputs .nested-data-type_repeat_property datalist {
+    margin: 0;
+    border-radius: 0;
+}
+
+.nested-data-type_repeat_property_list {
+    display: inline-flex;
+    width: 100%;
+}
+
+.nested-data-type-dropwdown {
+    padding-left: 6px;
+    width: calc(100% - 30px);
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.35);
+    background: rgba(0,0,0,0.05);
+    height: 36px;
+}
+
+.hidden {
+    display: none;
+}
+
+.inputs .nested-data-type_add_class {
+    font-size: .75rem;
+    height: fit-content;
+    border-radius: 0;
+    width: 30px;
+    background: rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.35);
+    vertical-align: bottom;
+}
+
+.nested-data-type_property_dropdown::-webkit-calendar-picker-indicator {
+    opacity: 100;
+}
+
+.nested-data-type_properties .input ~ .input {
+    border-bottom: unset;
+}
+
+.nested-data-type_properties .input label {
+    z-index: 1;
+    display: flex;
+    /* padding: 6px 0 6px 6px; */
+    width: auto;
+    font-weight: bold;
+    color: rgba(0,0,0,0.35);
+}
+
+.nested-data-type_properties .input textarea {
+    margin: -6px 0 -6px 0;
+    /* height: 36px; */
+    /* color: #222; */
+    border: 0;
+    padding: 6px;
+    font-weight: normal;
+    background: transparent;
+    min-height: 54px !important;
+}
+
+.o-title.items {
+    line-height: 1.6rem;
+    min-height: 54px !important;
+}
+
+.nested-data-type_properties .items a:after {
+    font-family: "Font Awesome 5 Free";
+    content: " \f1b2";
+}

@@ -1,0 +1,26 @@
+<div>
+    <ul>
+        <?php $iterate = function ($groupings) use (&$iterate) {
+            foreach ($groupings as $grouping) {
+                $groupingName = $grouping['text'];
+                $groupingSet = $grouping['data']['itemSet'];
+                if (empty($groupingSet)) {
+                    echo '<li>' . $groupingName . '</li>';
+                } else {
+                    try {
+                        $itemSet = $this->api()->read('item_sets', $groupingSet)->getContent();
+                        echo '<li>'  . $itemSet->link($groupingName) . '</li>';
+                    } catch (NotFoundException $e) {
+                        echo '<li>' . $groupingName . '</li>';
+                    }
+                }
+                if (isset($grouping['children'])) {
+                    echo '<ul>';
+                    $iterate($grouping['children']);
+                    echo '</ul>';
+                }
+            }
+        };
+        $iterate($hierarchyData); ?>
+    </ul>
+</div>

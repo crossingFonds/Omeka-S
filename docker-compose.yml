@@ -1,0 +1,35 @@
+version: "3.3"
+
+services:
+  db:
+    container_name: omeka_db
+    image: mysql:5.7
+    platform: linux/amd64
+    restart: always
+    volumes:
+      - .data/mysql:/var/lib/mysql
+      - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: omeka
+      MYSQL_DATABASE: omeka
+      MYSQL_USER: omeka
+      MYSQL_PASSWORD: omeka
+    
+  omeka:
+    #image:  docker.io/giocomai/omeka-s-docker:v3.2.3.production
+    container_name: omeka
+    build:
+      context: .
+      target: omeka
+    platform: linux/arm64/v8
+    ports:
+      - "80:80"
+    restart: always
+    volumes:
+      - ./config:/var/www/html/config
+      - ./files:/var/www/html/files
+      - ./modules:/var/www/html/modules
+      - ./themes:/var/www/html/themes
+    depends_on:
+      - db

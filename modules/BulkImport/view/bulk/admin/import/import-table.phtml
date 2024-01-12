@@ -1,0 +1,105 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \BulkImport\Api\Representation\ImportRepresentation[] $imports
+ */
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$i18n = $plugins->get('i18n');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+?>
+
+<script>
+$(document).ready(function(){
+    $('.confirm-action').click(function(){
+        return window.confirm(<?= json_encode($translate('Remove imported resources?')) ?>);
+    });
+});
+</script>
+
+<table id="table-bulk-import" class="tablesaw" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th><?= $escape($translate('Label / Comment')) ?></th>
+            <th><?= $escape($translate('Status')) ?></th>
+            <th><?= $escape($translate('Process')) ?></th>
+            <th><?= $escape($translate('User')) ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($imports as $import):
+            $job = $import->job();
+            $owner = $job ? $job->owner() : null;
+            $importer = $import->importer();
+            ?>
+        <tr>
+            <td>
+                <?php $comment = $import->comment() ?>
+                <?php if ($comment): ?>
+                <?= $escape($comment) ?>
+                <span class="bulk-label-sub"><?= $importer ? $escape($importer->label()) : '' ?></span>
+                <?php else: ?>
+                <?= $importer ? $escape($importer->label()) : $translate('[Unknown]') ?>
+                <?php endif; ?>
+                <ul class="actions">
+                    <?php if ($import->isDryRun()): ?>
+                    <li><span class="dry-run"><?= $translate('Dry run') ?></span></li>
+                    <?php endif; ?>
+                    <?php if ($import->isProcessStoppable()): ?>
+                    <li><?= $hyperlink('', $url('admin/bulk/id', ['controller' => 'import', 'action' => 'stop', 'id' => $import->id()]), [
+                        'class' => 'fas fa-times-circle',
+                        'title' => $translate('Stop'), // @translate
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <?php if ($import->isUndoable()): ?>
+                    <li><?= $hyperlink('', $url('admin/bulk/id', ['controller' => 'import', 'action' => 'undo', 'id' => $import->id()]), [
+                        'class' => 'fas fa-undo confirm-action',
+                        'title' => $translate('Remove imported data'), // @translate
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <li><?= $hyperlink('', $this->url('admin/bulk/id', ['controller' => 'import', 'action' => 'show', 'id' => $import->id()]), [
+                        'class' => 'fas fa-cogs',
+                        'title' => $translate('See params'), // @translate
+                    ]) ?></li>
+                    <li><?= $hyperlink('', $this->url('admin/bulk/id', ['controller' => 'import', 'action' => 'logs', 'id' => $import->id()]), [
+                        'class' => 'fas fa-list',
+                        'title' => $translate('See logs'), // @translate
+                    ]) ?></li>
+                    <?php if ($checkFileUrl = $import->checkFileUrl()): ?>
+                    <li><?= $hyperlink('', $checkFileUrl, [
+                        'class' => 'fas fa-solid fa-check',
+                        'title' => $translate('Check file'), // @translate
+                    ]) ?></li>
+                    <?php else: ?>
+                    <li><span class="no-action"></span></li>
+                    <?php endif; ?>
+                </ul>
+            </td>
+            <td><?= $import->undoJob() ? $translate($import->undoStatusLabel()) : $translate($import->statusLabel()) ?></td>
+            <td class="process">
+                <?php if (!$import->started() && !$import->undoStarted()): ?>
+                <?php // Nothing. ?>
+                <?php elseif ($import->started() && !$import->undoStarted()): ?>
+                <span class="process-do started"><?= sprintf($translate('Start: %s'), $i18n->dateFormat($import->started(), 'medium', 'short')) ?></span>
+                    <?php if ($import->ended()): ?>
+                <br/>
+                <span class="process-do ended"><?= sprintf($translate('End: %s'), $i18n->dateFormat($import->ended(), 'medium', 'short')) ?></span>
+                    <?php endif; ?>
+                <?php elseif ($import->started() && $import->undoStarted()): ?>
+                <span class="process-do started"><?= sprintf($translate('Import: %s'), $i18n->dateFormat($import->started(), 'medium', 'short')) ?></span>
+                <br/>
+                    <?php if (!$import->undoEnded()): ?>
+                <span class="process-undo started"><?= sprintf($translate('Undo started: %s'), $i18n->dateFormat($import->undoStarted(), 'medium', 'short')) ?></span>
+                    <?php else: ?>
+                <span class="process-undo ended"><?= sprintf($translate('Undo: %s'), $i18n->dateFormat($import->undoEnded(), 'medium', 'short')) ?></span>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </td>
+            <td><?= $owner ? $hyperlink($owner->name(), $owner->adminUrl()) : '' ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>

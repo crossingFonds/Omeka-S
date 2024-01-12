@@ -1,0 +1,82 @@
+{
+    "require": {
+        "ext-xml": "*",
+        "codemirror/codemirror": "^5.65",
+        "daniel-km/simple-iso-3166-1": "^0.2",
+        "daniel-km/simple-iso-639-3": "^0.2",
+        "flowjs/flow-php-server": "^1.0",
+        "flowjs/flow.js": "^2.14",
+        "hakre/xmlreaderiterator": "^0.1",
+        "james-heinrich/getid3": "^2.0-dev",
+        "mikehaertl/php-pdftk": "^0.9",
+        "mtdowling/jmespath.php": "^2.6",
+        "oomphinc/composer-installers-extender": "^2.0",
+        "openspout/openspout": "^3.7",
+        "phpoffice/phpword": "^1.1",
+        "softcreatr/jsonpath": "^0.7"
+    },
+    "replace": {
+        "laminas/laminas-escaper": "*",
+        "laminas/laminas-zendframework-bridge": "*",
+        "symfony/polyfill-mbstring": "*"
+    },
+    "require-dev": {
+        "biblibre/omeka-s-test-helper": "dev-master"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BulkImportTest\\": "test/BulkImportTest/"
+        }
+    },
+   "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "type": "omeka-addon-asset",
+                "name": "flowjs/flow.js",
+                "version": "2.14.1",
+                "dist": {
+                    "type": "file",
+                    "url": "https://github.com/Daniel-KM/Omeka-S-module-BulkImport/releases/download/3.3.30.0/flow.min.js"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "type": "omeka-addon-asset",
+                "name": "codemirror/codemirror",
+                "version": "5.65.13",
+                "dist": {
+                    "type": "zip",
+                    "url": "https://codemirror.net/5/codemirror.zip"
+                }
+            }
+        }
+    ],
+    "extra": {
+        "installer-types": ["omeka-addon-asset"],
+        "installer-paths": {
+            "asset/vendor/{$name}/": [
+                "type:omeka-addon-asset"
+            ]
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "allow-plugins": {
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
+        }
+    },
+    "scripts": {
+        "post-install-cmd": "@build",
+        "post-update-cmd": "@build",
+        "build": [
+            "# Fix deprecation for JsonPath on php 7.4 (minimum required by Omeka).",
+            "@php -r '$r = \"#[\\ReturnTypeWillChange]\\n    \"; $s = [\"public function offsetGet(\\$offset)\", \"public function key()\", \"public function current()\"]; $f = __DIR__ . \"/vendor/softcreatr/jsonpath/src/JSONPath.php\"; file_put_contents($f, str_replace($s, [$r . $s[0], $r . $s[1], $r . $s[2]], file_get_contents($f)));'"
+        ]
+    }
+}

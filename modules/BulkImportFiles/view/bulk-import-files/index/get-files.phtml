@@ -1,0 +1,11 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var array $files_data_for_view
+ * @var array $listTerms
+ * @var array $filesMaps
+ * @var string $error
+ */
+
+// TODO Find why the other common template cannot be called directly from the controller (this is a partial view, not a full response with layout).
+echo $this->partial('bulk-import-files/index/get-folder', $this->vars());

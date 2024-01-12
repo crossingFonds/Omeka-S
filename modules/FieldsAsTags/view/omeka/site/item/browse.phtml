@@ -1,0 +1,141 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$thumbnail = $this->plugin('thumbnail');
+$this->htmlElement('body')->appendAttribute('class', 'item resource browse');
+
+$filterLocale = (bool) $this->siteSetting('filter_locale_values');
+$lang = $this->lang();
+$valueLang = $filterLocale ? [$lang, ''] : null;
+
+$query = $this->params()->fromQuery();
+$itemSetShow = isset($itemSet);
+if ($itemSetShow):
+    $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
+    $this->htmlElement('body')->appendAttribute('class', 'item-set');
+    $query['item_set_id'] = $itemSet->id();
+endif;
+?>
+
+<?php if ($itemSetShow): ?>
+    <?php echo $this->pageTitle($itemSet->displayTitle(null, $valueLang), 2); ?>
+    <h3><?php echo $translate('Item set'); ?></h3>
+    <div class="metadata">
+        <?php echo $this->resourcePageBlocks($itemSet)->getBlocks(); ?>
+    </div>
+    <div class="item-set-items">
+    <?php echo '<h3>' . $escape($translate('Items')) . '</h3>'; ?>
+<?php else: ?>
+    <?php echo $this->pageTitle($translate('Items'), 2); ?>
+<?php endif; ?>
+
+<?php echo $this->searchFilters(); ?>
+
+<?php 
+    // Fields as tags
+    $layoutSetting = $this->themeSetting('browse_layout') ?? '';
+    $gridState = ($layoutSetting == 'togglegrid') ? 'disabled' : '';
+    $listState = ($layoutSetting == 'togglelist') ? 'disabled': '';
+    $currentLayout = (!isset($layoutSetting) || strpos($layoutSetting, 'grid') !== false) ? 'grid' : 'list';
+    // --- Fields as tags
+?>
+
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+    <?php echo $this->hyperlink($translate('Advanced search'), $this->url('site/resource', ['controller' => 'item', 'action' => 'search'], ['query' => $query], true), ['class' => 'advanced-search']); ?>
+    <?php echo $this->browse()->renderSortSelector('items'); ?>
+    <?php
+    // Fields as tags
+    if (strpos($layoutSetting, 'toggle') !== false): ?>
+    <div class="layout-toggle">
+        <button type="button" aria-label="<?php echo $translate('Grid'); ?>" class="grid o-icon-grid" <?php echo $gridState; ?>></button>
+        <button type="button" aria-label="<?php echo $translate('List'); ?>" class="list o-icon-list" <?php echo $listState; ?>></button>        
+    </div>
+    <?php endif;
+    // --- Fields as tags?>
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+<?php // before <ul class="resource-list"> ?>
+<ul class="resource-list <?php echo $currentLayout; ?>">
+<?php
+$headingTerm = $this->siteSetting('browse_heading_property_term');
+$bodyTerm = $this->siteSetting('browse_body_property_term');
+
+// Fields as tags
+// Show tags
+$showLabel = true;
+$metadata_browse_use_globals = $this->setting('metadata_browse_use_globals') ?? true;
+$siteTagIds = $this->siteSetting('metadata_browse_properties')??[];
+if($metadata_browse_use_globals && count($siteTagIds)==0){
+    $tagIds = $this->setting('metadata_browse_properties')??[];
+}else{
+    $tagIds = $siteTagIds;
+}
+// ---- Fields as tags
+
+foreach ($items as $item):
+    $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => $valueLang]) : $item->displayTitle(null, $valueLang);
+    $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => $valueLang]) : $item->displayDescription(null, $valueLang);
+
+    // Fields as tags      
+    $vals = $item->values();
+    $tagHtml = '';
+    foreach ($vals as $tagTerm => $field)
+    {
+        if(count($field)){
+            if(in_array($field['property']->id(), $tagIds)){
+                if(isset($field))
+                {
+                    $values = $field['values'];
+                    if(($values!=null)&&(count($values)))
+                    {
+                        $tagHtml .= '<div class="tag-group ' . str_replace(':', '\:', $tagTerm) . '">';
+                        if($showLabel)
+                        {
+                            $label = $values[0]->property()->label();
+                            $tagHtml .= '<span class="tag-label">'.$label.'</span>';
+                        }
+                        foreach ($values as $val)
+                        {
+                            try
+                            {
+                                $f_id = $val->property()->id();
+                                if($val)
+                                {
+                                    // To make the field browsable with a link
+                                    $query = ['query' => ['Search' => '', 'property[0][property]' => $f_id, 'property[0][type]' => 'eq', 'property[0][text]' => strval($val)]];
+                                    $tagHtml .= $this->hyperlink(strval($val), $this->url('site/resource', ['controller' => 'item', 'action' => 'browse'], $query, true), ['class' => 'tag']);
+                                }
+                            } catch (\Throwable $th) {
+                            }
+                        }
+                        $tagHtml .= '</div>';
+                    }
+                }
+            }     
+        }   
+    }
+    // --- Fields as tags
+?>
+    <li class="item resource">
+        <?php
+        $linkContent = sprintf('%s<span class="resource-name">%s</span>',
+            $thumbnail($item, 'medium'),
+            $escape($heading));
+        echo $item->linkRaw($linkContent, null, ['class' => 'resource-link']);
+        ?>
+        <?php if ($body): ?>
+        <div class="description"><?php echo $escape($body); ?></div>
+        <?php endif; ?>
+        
+        <?php 
+        // Fields as tags
+        if(!empty($tagHtml)){ ?> <div class="tags"><?php echo $tagHtml; ?></div> <?php }
+        // --- Fields as tags ?>
+    </li>
+<?php endforeach; ?>
+</ul>
+<?php echo ($itemSetShow) ? '</div>' : ''; ?>
+<?php $this->trigger('view.browse.after'); ?>
+<?php echo $this->pagination(); ?>

@@ -1,0 +1,86 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \BulkImportFiles\Form\ImportForm $form
+ */
+
+$translate = $this->plugin('translate');
+$escapeHtml = $this->plugin('escapeHtml');
+
+$this->headLink()
+    ->appendStylesheet($this->assetUrl('css/bulk-import-files.css', 'BulkImportFiles'));
+$script = 'var basePath = ' . json_encode($this->basePath(), 320);
+$this->headScript()
+    ->appendScript($script)
+    ->appendFile($this->assetUrl('js/bulk-import-files.js', 'BulkImportFiles'), 'text/javascript', ['defer' => 'defer']);
+
+$this->htmlElement('body')->appendAttribute('class', 'bulk-import-files map-edit');
+
+$form->prepare();
+?>
+
+<?php echo $this->pageTitle($translate('Create/configure mappings'), 1, $translate('Bulk import files')); ?>
+
+<?php echo $this->form()->openTag($form); ?>
+<fieldset id='page-actions'>
+    <button type="submit" style="display: none;"><?php echo $translate('Next'); ?></button>
+</fieldset>
+<?php echo $this->formCollection($form, false); ?>
+
+<div class="selected-files">
+</div>
+
+<div class="selected-files-source">
+</div>
+<?php echo $this->form()->closeTag($form); ?>
+
+<div class="response files-map-block bulk-import-files-form">
+    <div class="property">
+        <p>
+            <?= sprintf($translate('This helper works only with the formats managed by %sGetId3%s.'), '<a href="https://getid3.org" target="_blank">', '</a>') ?>
+            <?= $translate('For xml metadata like xmp, that may be more complete and precise, you need to write the xpaths yourself.') ?>
+        </p>
+        <p>
+            <?= sprintf($translate('All fields should have the same format: either the object notation (%siptc.IPTCApplication.Headline%s), either the xpaths (%s/x:xmpmeta/rdf:RDF/rdf:Description/@xmp:Label%s). They should not be mixed.'), '<code>', '</code>', '<code>', '</code>') ?>
+        </p>
+        <p>
+            <?= $translate('You may need to create an item template first, with the media type as title.') ?>
+        </p>
+        <fieldset id="fieldset-map_edit_form">
+            <legend><?= $translate('Select folder') ?></legend>
+            <p class="explanation">
+                <?= $translate('You can either select a folder on your computer or on the server.') ?>
+                <?= $translate('It is recommended to use the server for big import to allow to continue to use the browser and to avoid the server upload limits for total size and number of files.') ?>
+            </p>
+            <div class="field">
+                <div class="field-meta">
+                    <label for="directory"><?= $translate('Source directory on server') ?></label>
+                    <a href="#" class="expand" aria-label="<?= $translate('Expand') ?>"></a>
+                    <div class="collapsible">
+                        <div class="field-description"><?= $translate('Enter the absolute path to the directory where files to be imported will be added.') ?>
+                            <?= sprintf($translate('The directory can be anywhere on your server. Your root path is: %s'), $_SERVER['DOCUMENT_ROOT']) ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="inputs">
+                    <input type="text" name="directory" id="directory" value="<?= OMEKA_PATH ?>/files/import">
+                </div>
+                <button type="submit" name="add-item-submit" class="check_button"><?= $translate('Check') ?></button>
+            </div>
+            <div class="field">
+                <div class="field-meta">
+                    <label for="multiFiles"><?= $translate('Select folder on computer') ?></label>
+                </div>
+                <div class="inputs">
+                    <input type="file" name="files[]" id="multiFiles" class="fileinput button" multiple="multiple" webkitdirectory="webkitdirectory" mozdirectory="mozdirectory" msdirectory="msdirectory" odirectory="odirectory" directory="directory">
+                </div>
+            </div>
+            <?php // This is a hidden button for js. ?>
+            <button type="submit" name="upload" id="upload"><?= $translate('Upload') ?></button>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal-loader">
+    <div class="modal-loader-info"><?= $translate('Please wait, analysis in progress…') ?></div>
+</div>
