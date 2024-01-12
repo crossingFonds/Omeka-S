@@ -1,8 +1,8 @@
 FROM php:8.2-apache-bookworm AS omeka
 
 # Omeka-S web publishing platform for digital heritage collections (https://omeka.org/s/)
-# Previous maintainers: Oldrich Vykydal (o1da) - Klokan Technologies GmbH  / Eric Dodemont <eric.dodemont@skynet.be>
-# MAINTAINER Giorgio Comai <g@giorgiocomai.eu>
+# Previous maintainers: Oldrich Vykydal (o1da) - Klokan Technologies GmbH  / Eric Dodemont <eric.dodemont@skynet.be> // Giorgio Comai <g@giorgiocomai.eu>
+# Modified for use by the Crossing Fonds project
 
 RUN a2enmod rewrite
 
