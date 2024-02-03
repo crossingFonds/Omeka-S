@@ -23,7 +23,7 @@ docker exec -it omeka_db bash -c "mysql -u omeka -pomeka omeka < /omeka.sql"
 Once the database is setup, you can now start the application:
 
 ```bash
-docker compose up --build -d
+docker compose up -d --build
 
 ```
 

@@ -4,8 +4,6 @@ FROM php:8.2-apache-bookworm AS omeka
 # Previous maintainers: Oldrich Vykydal (o1da) - Klokan Technologies GmbH  / Eric Dodemont <eric.dodemont@skynet.be> // Giorgio Comai <g@giorgiocomai.eu>
 # Modified for use by the Crossing Fonds project
 
-RUN a2enmod rewrite
-
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -qq update \
     && apt-get -qq -y upgrade \
@@ -27,6 +25,7 @@ RUN apt-get -qq update \
         libicu-dev \
         nano \
     && rm -rf /var/lib/apt/lists/* \
+    && a2enmod rewrite headers \
 # Install the PHP extensions we need
     && docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ \
     && docker-php-ext-install -j$(nproc) iconv pdo pdo_mysql mysqli gd \
