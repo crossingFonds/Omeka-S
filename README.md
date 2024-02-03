@@ -4,7 +4,7 @@
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - A copy of the Crossing Fonds Omeka database (e.g. `omeka.sql`). If you are not sure what these are or where to get them, you should contact the [Digital Humanities Innovation Lab](mailto:dhil@sfu.ca) for access. This file should be placed in the root folder.
-- A copy of the files (images, etc). This should be placed in the root folder as `files/`. 
+- A copy of the files (images, etc). This should be placed in the root folder as `files/`.
 
 ## Initialize the Application
 

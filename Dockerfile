@@ -7,43 +7,46 @@ FROM php:8.2-apache-bookworm AS omeka
 RUN a2enmod rewrite
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get -qq update && apt-get -qq -y upgrade
-RUN apt-get -qq update && apt-get -qq -y --no-install-recommends install \
-    unzip \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmcrypt-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libmemcached-dev \
-    zlib1g-dev \
-    imagemagick \
-    libmagickwand-dev \
-    wget \
-    ghostscript \
-    poppler-utils \
-    libsodium-dev \
-    libicu-dev
-
+RUN apt-get -qq update \
+    && apt-get -qq -y upgrade \
+    && apt-get -qq -y --no-install-recommends install \
+        unzip \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmcrypt-dev \
+        libpng-dev \
+        libjpeg-dev \
+        libmemcached-dev \
+        zlib1g-dev \
+        imagemagick \
+        libmagickwand-dev \
+        wget \
+        ghostscript \
+        poppler-utils \
+        libsodium-dev \
+        libicu-dev \
+        nano \
+    && rm -rf /var/lib/apt/lists/* \
 # Install the PHP extensions we need
-RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/
-RUN docker-php-ext-install -j$(nproc) iconv pdo pdo_mysql mysqli gd
-RUN yes | pecl install imagick && docker-php-ext-enable imagick 
-
+    && docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) iconv pdo pdo_mysql mysqli gd \
+    && yes | pecl install imagick && docker-php-ext-enable imagick \
 # Support for more languages, e.g. for date formatting and month names
-RUN docker-php-ext-configure intl
-RUN docker-php-ext-install intl
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install intl
 
 # Add the Omeka-S PHP code
 # Latest Omeka version, check: https://omeka.org/s/download/
-RUN wget --no-verbose "https://github.com/omeka/omeka-s/releases/download/v4.0.4/omeka-s-4.0.4.zip" -O /var/www/latest_omeka_s.zip
-RUN unzip -q /var/www/latest_omeka_s.zip -d /var/www/ \
-&&  rm /var/www/latest_omeka_s.zip \
-&&  rm -rf /var/www/html/ \
-&&  mv /var/www/omeka-s/ /var/www/html/
+RUN wget --no-verbose "https://github.com/omeka/omeka-s/releases/download/v4.0.4/omeka-s-4.0.4.zip" -O /var/www/latest_omeka_s.zip \
+    && unzip -q /var/www/latest_omeka_s.zip -d /var/www/ \
+    && rm /var/www/latest_omeka_s.zip \
+    && rm -rf /var/www/html/ \
+    && mv /var/www/omeka-s/ /var/www/html/
 
-COPY ./imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
-COPY ./.htaccess /var/www/html/.htaccess
+COPY imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
+COPY .htaccess /var/www/html/.htaccess
+COPY --chown=www-data:www-data --chmod=771 themes /var/www/html/themes/
+COPY --chown=www-data:www-data --chmod=771 modules /var/www/html/modules/
 
 VOLUME /var/www/html
 

@@ -3,21 +3,18 @@ version: "3.3"
 services:
   db:
     container_name: omeka_db
-    image: mysql:8.0.35
+    image: mysql:8.3
     platform: linux/amd64
     volumes:
       - .data/db:/var/lib/mysql:rw
-      - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d
-    #Must be rw with user mysql to avoid mysql.sock symlink issue
+      - ./config/custom.cnf:/etc/mysql/conf.d/custom.cnf
     user: mysql
     environment:
       MYSQL_ROOT_PASSWORD: omeka
       MYSQL_DATABASE: omeka
       MYSQL_USER: omeka
       MYSQL_PASSWORD: omeka
-    
-    
+
   omeka:
     #image:  docker.io/giocomai/omeka-s-docker:v3.2.3.production
     container_name: omeka
