@@ -47,6 +47,9 @@ COPY .htaccess /var/www/html/.htaccess
 COPY --chown=www-data:www-data --chmod=771 themes /var/www/html/themes/
 COPY --chown=www-data:www-data --chmod=771 modules /var/www/html/modules/
 
+RUN chown www-data:www-data -R /var/www/html/themes/ /var/www/html/modules/ \
+    && chmod 771 -R /var/www/html/themes/ /var/www/html/modules/
+
 VOLUME /var/www/html
 
 CMD ["apache2-foreground"]
