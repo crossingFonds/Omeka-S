@@ -1,0 +1,45 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Selection\Api\Representation\SelectionRepresentation $selection
+ * @var \Selection\Api\Representation\SelectionResourceRepresentation[] $selectionResources
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation[] $resources
+ * @var array $resourcesByType
+ */
+
+// Template used by selection-resource-browse.
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+
+// This is the base url, the query is added via js.
+$siteSlug = $site->slug();
+$baseUrl = dirname($url('site/selection-id', ['id' => $selection ? $selection->id() : 0, 'action' => '__'], true));
+$bulkExporters = $plugins->has('bulkExporters') ? $plugins->get('bulkExporters')() : null;
+?>
+
+<li class="selection-group group-level-__GROUP_LEVEL_" data-path="__GROUP_PATH__" data-level="__GROUP_LEVEL__">>
+    <div>
+        <span class="group-name">__GROUP_NAME__</span>
+        <ul class="actions">
+            <li><button type="button" class="add-group" data-url="<?= $baseUrl  ?>/add-group"><?= $escape($translate('Add a sub-group')) ?></button></li>
+            <li><button type="button" class="rename-group" data-url="<?= $baseUrl ?>/rename-group"><?= $escape($translate('Rename group')) ?></button></li>
+            <li><button type="button" class="move-group" data-url="<?= $baseUrl ?>/move-group"><?= $escape($translate('Move group')) ?></button></li>
+            <li><button type="button" class="delete-group" data-url="<?= $baseUrl ?>/delete-group"><?= $escape($translate('Delete group')) ?></button></li>
+            <li><button type="button" class="move-resource" data-url="<?= $baseUrl ?>/move"><?= $escape($translate('Move resources')) ?></button></li>
+            <?php if ($bulkExporters):
+            foreach ($bulkExporters as $format => $label):
+                $urlFormat = $url('site/resource/output', ['site-slug' => $siteSlug, 'controller' => 'resource', 'action' => 'browse', 'format' => $format]);
+            ?>
+            <li><a class="download-id" href="<?= $urlFormat ?>" download="download"><button type="button" class="export-group download-<?= $format ?>" data-url="<?= $urlFormat ?>"><?= $label ?></button></a></li>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </ul>
+    </div>
+    <ul class="resource-list selection-resources">
+        __GROUP_RESOURCES__
+    </ul>
+</li>
