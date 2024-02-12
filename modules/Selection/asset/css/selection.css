@@ -1,0 +1,77 @@
+@media screen {
+    #content .selection .media.resource {
+        text-align: inherit;
+    }
+    #content .media.resource:hover {
+        border-bottom: 1px solid transparent;
+    }
+    .selection-list ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .selection-list .selection-group .selection-resources {
+        padding-left: 2em;
+    }
+    .selection-list .add-group::after {
+        content:"+";
+    }
+    .selection-list .move-group::after,
+    .selection-list .move-resource::after {
+        content:"▷";
+    }
+    .selection-list .rename-group::after {
+        content:"⁄";
+    }
+    .selection-list .delete-group::after {
+        content:"X";
+    }
+    a.selection-list-toggle:link,
+    a.selection-list-toggle:visited {
+        color: #000;
+        text-decoration: none;
+    }
+    .selection-list-toggle::after {
+        content:"⊞";
+    }
+    .selection-list-toggle.active::after {
+        content:"⊟";
+    }
+    .selection-list .selection-delete::after {
+        content:"X";
+    }
+    .selection-list .add-group::after,
+    .selection-list .move-group::after,
+    .selection-list .rename-group::after,
+    .selection-list .delete-group::after,
+    .selection-list .move-resource::after,
+    .selection-list .selection-delete::after {
+        padding-left: 1em;
+    }
+    .selection-list.selections.inactive,
+    .selection-list.selection-empty.inactive {
+        display: none;
+    }
+    span.selection-delete {
+        cursor: pointer;
+        margin-left: 12px;
+    }
+    .selection #content .media.resource,
+    #content .selection .media.resource {
+        display: inherit;
+        text-align: inherit;
+        vertical-align: inherit;
+        margin-right: inherit;
+    }
+    .group-name span:not(:last-of-type)::after {
+        content:"/";
+        padding-left: .5em;
+        padding-right: .5em;
+    }
+    /* Note: regular font awesome icons are no more free. */
+    .selection-update.selected {
+         color:black;
+    }
+    .selection-update.unselected {
+         color:gray;
+    }
+}
