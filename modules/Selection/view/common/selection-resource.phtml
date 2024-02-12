@@ -1,0 +1,48 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Api\Representation\ItemRepresentation $resource
+ */
+
+// For a better display, it is recommended to edit the original item/show
+// template of the theme, and any other one, to include the link to update the
+// selection and to skip this partial. This partial can be skipped automatically
+// with module BlocksDisposition.
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$selectionButtonToggle = $plugins->get('selectionButtonToggle');
+
+$this->headLink()
+    ->appendStylesheet($this->assetUrl('css/selection.css', 'Selection'));
+$this->headScript()
+    ->appendFile($this->assetUrl('js/selection.js', 'Selection'), 'text/javascript', ['defer' => 'defer']);
+
+$medias = $resource->getControllerName() === 'item' ? $resource->media() : [];
+?>
+
+<div class="selection">
+    <h2><?= $translate('Selection') // @translate ?></h2>
+    <?php if (count($medias)): ?>
+    <h3><?= $translate('Item') ?></h3>
+    <?php endif; ?>
+    <div class="item resource">
+        <?= $selectionButtonToggle($resource) ?>
+        <?= $resource->linkPretty() ?>
+    </div>
+    <?php if (count($medias)): ?>
+    <h3><?= $translate('Media') ?></h3>
+    <div class="media-list">
+        <?php foreach ($medias as $media): ?>
+        <div class="media resource">
+            <?= $selectionButtonToggle($media) ?>
+            <?= $media->linkPretty() ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <?php // The session selection list can be moved anywhere via the main layout. ?>
+    <?= $this->partial('common/selection-list') ?>
+</div>
