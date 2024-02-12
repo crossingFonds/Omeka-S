@@ -3,7 +3,7 @@
         'name' => 'daniel-km/omeka-s-module-advanced-resource-template',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '6f1982d0e2a32218a10445169291547adf84d1e9',
+        'reference' => '4d02712a0e8ea57c04c36a920cd75d78bc6f639b',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'daniel-km/omeka-s-module-advanced-resource-template' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '6f1982d0e2a32218a10445169291547adf84d1e9',
+            'reference' => '4d02712a0e8ea57c04c36a920cd75d78bc6f639b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

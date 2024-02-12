@@ -1,0 +1,56 @@
+<?php echo $this->pageTitle($this->translate('Past audits'), 1, $this->translate('Data Cleaning')); ?>
+<div id="page-actions">
+    <?php echo $this->hyperlink($this->translate('Prepare new audit'), $this->url(null, ['action' => 'prepare-audit'], true), ['class' => 'button']); ?>
+</div>
+<?php if ($jobs): ?>
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+</div>
+<table class="tablesaw browse" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th><?php echo $this->translate('Job ID'); ?></th>
+            <th><?php echo $this->translate('Job status'); ?></th>
+            <th><?php echo $this->translate('Job started'); ?></th>
+            <th><?php echo $this->translate('Job ended'); ?></th>
+            <th><?php echo $this->translate('Auditor'); ?></th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($jobs as $job): ?>
+    <?php
+    $owner = $job->owner();
+    $ended = $job->ended();
+    ?>
+        <tr>
+            <td>
+                <?php echo $this->hyperlink($job->id(), $this->url('admin/id', ['controller' => 'job', 'action' => 'show', 'id' => $job->id()])); ?>
+                <ul class="actions">
+                    <li><?php echo $this->hyperlink('', '#', [
+                        'data-sidebar-content-url' => $this->url(null, ['action' => 'show-details'], ['query' => ['job_id' => $job->id()]], true),
+                        'class' => 'o-icon-more sidebar-content',
+                        'data-sidebar-selector' => '#show-details',
+                        'title' => $this->translate('Details'),
+                    ]); ?></li>
+                </ul>
+            </td>
+            <td><?php echo $this->translate($job->statusLabel()) ?></td>
+            <td><?php echo $this->i18n()->dateFormat($job->started(), 'medium', 'short'); ?></td>
+            <td><?php echo $ended ? $this->i18n()->dateFormat($job->ended(), 'medium', 'short') : $this->translate('Not ended'); ?></td>
+            <td><?php echo $owner ? $owner->name(): $this->translate('Unknown'); ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+</div>
+<div id="show-details" class="sidebar">
+    <?php echo $this->hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $this->translate('Close')]); ?>
+    <div class="sidebar-content"></div>
+</div>
+<?php else: ?>
+<div class="no-resources">
+    <p><?php echo $this->translate('There are no past audits.'); ?></p>
+</div>
+<?php endif; ?>
