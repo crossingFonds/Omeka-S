@@ -1,5 +1,5 @@
 .DS_Store
 .data
 .archive
-files
-*.sql
+/files
+/*.sql
