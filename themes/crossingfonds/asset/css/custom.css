@@ -1,0 +1,65 @@
+/* Foundation color palette */
+
+:root {
+  --light-gray: #e6e6e6;
+  --medium-gray: #cacaca;
+  --dark-gray: #8a8a8a;
+  --black: #0a0a0a;
+  --white: #fefefe;
+  --primary: #1779ba;
+  --secondary: #767676;
+  --success: #3adb76;
+  --warning: #ffae00;
+  --alert: #cc4b37;
+  /* Default Mirador Colour; note 
+    that this is set via MUI
+  */
+  --mirador-bg: rgb(220, 220, 220);
+}
+
+#cf_widget {
+  /* background-color: var(--mirador-bg);*/
+  /* padding-bottom: 0.4em; */
+}
+#cf_widget + .selection {
+  display: none;
+}
+
+#cf_widget {
+  position: sticky;
+  top: 0.2em;
+}
+
+.cf-selection {
+  margin: 0.5em;
+  color: var(--white);
+}
+
+.selection-update {
+  color: inherit;
+}
+
+.cf-selection .fa-bookmark {
+  transition: color 0.25s ease-out;
+}
+
+.cf-selection button.selection-update {
+  color: var(--white);
+}
+
+.cf-selection button.selection-update.selected {
+  background-color: var(--secondary);
+}
+
+.cf-selection button.selection-update.unselected:hover > .fas.fa-bookmark {
+  color: var(--medium-gray);
+}
+
+.cf-selection button.selected .fa-bookmark {
+  color: var(--medium-gray);
+}
+
+.cf-selection button:after {
+  content: attr(title);
+  margin-left: 0.4rem;
+}
