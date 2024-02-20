@@ -41,6 +41,7 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
         <?php echo $this->headTitle(); ?>
         <?php echo $this->headLink(); ?>
         <?php echo $this->headStyle(); ?>
+        <script src="<?php echo $this->assetUrl('js/custom.js') ; ?>"></script>
         <?php echo $this->headScript(); ?>
         <style>
             .banner {
@@ -96,6 +97,5 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
         <script>
           $(document).foundation();
         </script>
-        <script src="<?php echo $this->assetUrl('js/custom.js') ; ?>"></script>
     </body>
 </html>

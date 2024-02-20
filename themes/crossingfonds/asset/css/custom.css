@@ -21,7 +21,7 @@
   /* background-color: var(--mirador-bg);*/
   /* padding-bottom: 0.4em; */
 }
-#cf_widget + .selection {
+#content:has(#cf_widget) .selection {
   display: none;
 }
 
@@ -47,7 +47,8 @@
   color: var(--white);
 }
 
-.cf-selection button.selection-update.selected {
+.cf-selection button.selection-update.selected,
+.selection-delete {
   background-color: var(--secondary);
 }
 
@@ -62,4 +63,21 @@
 .cf-selection button:after {
   content: attr(title);
   margin-left: 0.4rem;
+}
+
+.universal-viewer .attribution {
+  display: none !important;
+}
+
+.resource-list .resource > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-list .resource .actions {
+  margin-top: auto;
+}
+.resource-list .resource img {
+  float: none;
+  margin-left: none;
 }
