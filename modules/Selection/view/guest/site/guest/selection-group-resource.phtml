@@ -63,7 +63,7 @@ $siteSlug = $site->slug();
         <?php if ($selection && $selection->structure()): ?>
         <li><button type="button" class="move-resource" data-url="<?= $baseUrl ?>/move"><?= $moveText ?></button></li>
         <?php endif; ?>
-        <li><button type="button" class="selection-delete" data-url="<?= $baseUrl ?>/delete"><?= $deleteText ?></button></li>
+        <li><button type="button" class="selection-delete" data-url="<?= $baseUrl ?>/delete"><span class="fas fa-plus"></span><?= $deleteText ?></button></li>
         <?php if ($bulkExporters):
         foreach ($bulkExporters as $format => $label):
             $urlFormat = $url('site/resource-id/output', ['site-slug' => $siteSlug, 'controller' => $resourceTypesToClasses[$resourceType], 'id' => $resourceId, 'action' => 'show', 'format' => $format]);

@@ -6,7 +6,7 @@ Required modules added:
 * Image Server [require vips for better tiling]
 * Common Module
 * Blocks Disposition
-* Mirador
+* Universal Viewer
 
 Modules removed:
 
@@ -16,17 +16,94 @@ Modules removed:
 TODO when deployed:
 
 * Make sure all of these are enabled
-
 * Crossing Fonds theme (which is just a copy of the Foundation theme) 
 
+## Blocks disposition
 
-Mirador 
+<table>
+  <tbody>
+    <tr>
+      <th>For item set show</th>
+      <td>`MetadataBrowse` `Comment` `Selection`</td>
+    </tr>
+    <tr>
+      <th>For item show</th>
+      <td>`UniversalViewer` `Collection` `Comment` `Contribute` `MetadataBrowse` `Selection` `Annotate`</td>
+    </tr>
+    <tr>
+      <th>For media show</th>
+      <td>[null]</td>
+    </tr>
+    <tr>
+      <th>For item set browse</th>
+      <td> `MetadataBrowse` </td>
+    </tr>
+    <tr>
+      <th>For item browse</th>
+      <td> `Contribute` </td>
+    </tr>
+  </tbody>
+</table>
+
+## Players
+
+<table>
+  <tbody>
+    <tr>
+      <th>Version of Universal Viewer</th>
+      <td>Version 4</td>
+    </tr>
+    <tr>
+      <th>Universal viewer config as json for v4</th>
+      <td>
+
+     ```json
+    {
+  "options": {
+    "dropEnabled": true,
+    "footerPanelEnabled": false,
+    "headerPanelEnabled": false,
+    "leftPanelEnabled": true,
+    "limitLocales": false,
+    "overrideFullScreen": false,
+    "pagingEnabled": true,
+    "rightPanelEnabled": false,
+    "attributionEnabled": false
+    },
+  "modules": {
+    "headerPanel": {
+      "options": {
+        "localeToggleEnabled": false
+      }
+    },
+    "seadragonCenterPanel": {
+      "options": {
+        "autoHideControls": true,
+        "attributionEnabled": false
+      }
+    }
+  }
+}
+      ```
+
+      </td>
+    </tr>
+    <tr>
+      <th>Use Universal Viewer config from the theme for v4 (deprecated)</th>
+      <td>[unchecked]</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<details>
+
+<summary>Notes / Old Configurations</summary>
+
+## Mirador 
 
 ```json
 {
-    "requests": {
-        "postprocessors": [testFunction]
-    },
     "window": {
         "allowClose": false,
         "allowFullscreen": true,
@@ -72,42 +149,5 @@ Interacting with the iiifServer to get public URL:
 ```
 $iiifUrl = $plugins->get('iiifUrl');
 $iiifUrl($resource, '', $VERSION) 
-// $VERSION = "2" | "3" 
 ```
-
-Two options: 
-
-1. Just get the public URLs and then collect them into a Collection (simplest);
-2. Potentially better would be to have all of these as a single Manifest, in which one could see all images (and set the viewer to have a full gallery view versus a single page)
-
-
-Universal Viewer config:
-
-```json
-{
-  "options": {
-    "dropEnabled": true,
-    "footerPanelEnabled": true,
-    "headerPanelEnabled": true,
-    "leftPanelEnabled": true,
-    "limitLocales": false,
-    "overrideFullScreen": false,
-    "pagingEnabled": true,
-    "rightPanelEnabled": true, // May want false?
-    "attributionEnabled": false
-  },
-  "modules": {
-    "headerPanel": {
-      "options": {
-        "localeToggleEnabled": false
-      }
-    },
-    "seadragonCenterPanel": {
-      "options": {
-        "autoHideControls": false,
-        "attributionEnabled": false
-      }
-    }
-  }
-}
-```
+</details>

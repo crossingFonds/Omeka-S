@@ -27,11 +27,11 @@
 
 #cf_widget {
   position: sticky;
-  top: 0.2em;
+  top: 0.4em;
 }
 
 .cf-selection {
-  margin: 0.5em;
+  margin: 0.5em 0.5em 0.5em 0;
   color: var(--white);
 }
 
@@ -52,21 +52,26 @@
   background-color: var(--secondary);
 }
 
-.cf-selection button.selection-update.unselected:hover > .fas.fa-bookmark {
+button .fas.fa-plus {
+  transition: transform 0.25s ease-in-out;
+  margin-right: 0.4em;
+}
+
+.cf-selection button.selection-update.selected .fas.fa-plus,
+.selection-delete .fas.fa-plus {
+  transform: rotate(45deg);
+}
+
+.cf-selection button.selection-update.unselected:hover > .fas {
   color: var(--medium-gray);
 }
 
-.cf-selection button.selected .fa-bookmark {
+.cf-selection button.selected .fas {
   color: var(--medium-gray);
 }
 
 .cf-selection button:after {
   content: attr(title);
-  margin-left: 0.4rem;
-}
-
-.universal-viewer .attribution {
-  display: none !important;
 }
 
 .resource-list .resource > div {
@@ -76,8 +81,35 @@
 
 .resource-list .resource .actions {
   margin-top: auto;
+  margin-left: 0;
 }
 .resource-list .resource img {
   float: none;
   margin-left: none;
+}
+
+.selection-list .selection-delete::after {
+  content: unset;
+}
+
+/* Universal Viewer isn't shadow-dom'd, so need to reset all properties */
+
+.uv #content {
+  padding: unset !important;
+}
+
+.uv h1 {
+  display: none !important;
+}
+
+.uv-iiif-extension-host.uv-openseadragon-extension
+  .centerPanel
+  .content
+  .viewer {
+  padding-bottom: 16px;
+}
+
+/* Unclear how to configure the removal of attribution */
+.universal-viewer .attribution {
+  display: none !important;
 }

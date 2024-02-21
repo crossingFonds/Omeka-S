@@ -93,17 +93,19 @@ $selectedResourceModel = [
 ];
 ?>
 
-<?= $this->pageTitle($selection && ($label = $selection->label()) ? $label : $translate('Selection'), 2) ?>
+<?= $this->pageTitle($selection && ($label = $selection->label()) ? $label : $translate('Curation'), 2) ?>
 
 <div class="selection-list selections">
+<?php /*
     <?php if (count($selectionResources)): ?>
+
     <h3 class="selection-count"><?= sprintf($translate('%d items, %d media'), count($resourcesByType['items']), count($resourcesByType['media'])) ?></h3>
     <?php else: ?>
     <p class="selection-empty">
         <?= $translate('The selection is empty.') // @translate ?>
     </p>
     <?php endif; ?>
-
+    */ ?>
     <!-- <div class="selection-list-actions">
         <ul class="actions">
             <li>

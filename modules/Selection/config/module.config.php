@@ -73,7 +73,7 @@ return  [
     'navigation' => [
         'site' => [
             [
-                'label' => 'Selection', // @translate
+                'label' => 'Curation', // @translate
                 'route' => 'site/guest/selection',
                 'controller' => 'Selection\Controller\Site\GuestBoard',
                 'action' => 'selection',
