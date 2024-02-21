@@ -24,7 +24,9 @@ TODO when deployed:
   <tbody>
     <tr>
       <th>For item set show</th>
-      <td>`MetadataBrowse` `Comment` `Selection`</td>
+      <td>
+`MetadataBrowse` `Comment` `Selection`
+     </td>
     </tr>
     <tr>
       <th>For item show</th>
@@ -57,7 +59,7 @@ TODO when deployed:
       <th>Universal viewer config as json for v4</th>
       <td>
 
-     ```json
+```json
     {
   "options": {
     "dropEnabled": true,
@@ -84,9 +86,8 @@ TODO when deployed:
     }
   }
 }
-      ```
-
-      </td>
+```
+  </td>
     </tr>
     <tr>
       <th>Use Universal Viewer config from the theme for v4 (deprecated)</th>
