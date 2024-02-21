@@ -23,7 +23,7 @@ TODO when deployed:
 <table>
   <tbody>
     <tr>
-      <th>For item set show</th>
+      <td>For item set show</td>
       <td>
 `MetadataBrowse` `Comment` `Selection`
      </td>
