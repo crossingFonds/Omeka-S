@@ -42,8 +42,9 @@ RUN wget --no-verbose "https://github.com/omeka/omeka-s/releases/download/v4.0.4
     && rm -rf /var/www/html/ \
     && mv /var/www/omeka-s/ /var/www/html/
 
-COPY imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
-COPY .htaccess /var/www/html/.htaccess
+COPY docker/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
+COPY docker/.htaccess /var/www/html/.htaccess
+COPY docker/php.ini /usr/local/etc/php/conf.d/omeka.ini
 COPY --chown=www-data:www-data --chmod=771 themes /var/www/html/themes/
 COPY --chown=www-data:www-data --chmod=771 modules /var/www/html/modules/
 
