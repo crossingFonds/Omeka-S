@@ -29,19 +29,19 @@ TODO when deployed:
      </td>
     </tr>
     <tr>
-      <th>For item show</th>
+      <td>For item show</td>
       <td>`UniversalViewer` `Collection` `Comment` `Contribute` `MetadataBrowse` `Selection` `Annotate`</td>
     </tr>
     <tr>
-      <th>For media show</th>
+      <td>For media show</td>
       <td>[null]</td>
     </tr>
     <tr>
-      <th>For item set browse</th>
+      <td>For item set browse</td>
       <td> `MetadataBrowse` </td>
     </tr>
     <tr>
-      <th>For item browse</th>
+      <td>For item browse</td>
       <td> `Contribute` </td>
     </tr>
   </tbody>
@@ -52,15 +52,15 @@ TODO when deployed:
 <table>
   <tbody>
     <tr>
-      <th>Version of Universal Viewer</th>
+      <td>Version of Universal Viewer</td>
       <td>Version 4</td>
     </tr>
     <tr>
-      <th>Universal viewer config as json for v4</th>
+      <td>Universal viewer config as json for v4</td>
       <td>
 
 ```json
-    {
+{
   "options": {
     "dropEnabled": true,
     "footerPanelEnabled": false,
@@ -90,7 +90,7 @@ TODO when deployed:
   </td>
     </tr>
     <tr>
-      <th>Use Universal Viewer config from the theme for v4 (deprecated)</th>
+      <td>Use Universal Viewer config from the theme for v4 (deprecated)</td>
       <td>[unchecked]</td>
     </tr>
   </tbody>
