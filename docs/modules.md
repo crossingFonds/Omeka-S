@@ -147,7 +147,7 @@ TODO when deployed:
 
 Interacting with the iiifServer to get public URL:
 
-```
+```php
 $iiifUrl = $plugins->get('iiifUrl');
 $iiifUrl($resource, '', $VERSION) 
 ```
