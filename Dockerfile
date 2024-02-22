@@ -24,6 +24,7 @@ RUN apt-get -qq update \
         libsodium-dev \
         libicu-dev \
         nano \
+        libvips-tools \
     && rm -rf /var/lib/apt/lists/* \
     && a2enmod rewrite headers \
 # Install the PHP extensions we need

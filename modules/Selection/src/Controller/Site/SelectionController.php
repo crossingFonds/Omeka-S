@@ -1067,7 +1067,7 @@ class SelectionController extends AbstractActionController
         if (!$selection) {
             $selection = $api->create('selections', [
                 'o:owner' => ['o:id' => $user->getId()],
-                'o:label' => $this->translate('My selection'), // @translate
+                'o:label' => $this->translate('Curation'), // @translate
             ])->getContent();
             $selecteds = $api->search('selection_resources', [
                 'owner_id' => $user->getId(),

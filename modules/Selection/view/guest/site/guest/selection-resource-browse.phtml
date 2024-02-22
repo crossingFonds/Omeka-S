@@ -93,30 +93,31 @@ $selectedResourceModel = [
 ];
 ?>
 
-<?= $this->pageTitle($selection && ($label = $selection->label()) ? $label : $translate('Selection'), 2) ?>
+<?= $this->pageTitle($selection && ($label = $selection->label()) ? $label : $translate('Curation'), 2) ?>
 
 <div class="selection-list selections">
-
+<?php /*
     <?php if (count($selectionResources)): ?>
+
     <h3 class="selection-count"><?= sprintf($translate('%d items, %d media'), count($resourcesByType['items']), count($resourcesByType['media'])) ?></h3>
     <?php else: ?>
     <p class="selection-empty">
         <?= $translate('The selection is empty.') // @translate ?>
     </p>
     <?php endif; ?>
-
-    <div class="selection-list-actions">
+    */ ?>
+    <!-- <div class="selection-list-actions">
         <ul class="actions">
             <li>
                 <button type="button" class="add-group" data-msg-group-name="<?= $translate('Set group name') ?>" data-url="<?= $url('site/selection-id', ['id' => $selection ? $selection->id() : 0, 'action' => 'add-group'], true) ?>"><?= $translate('Add a group') ?></button>
             </li>
         </ul>
-    </div>
+    </div> -->
 
     <?php $this->trigger('view.browse.before'); ?>
 
     <?php // Groups and selected resources inside them. ?>
-    <?php $templateGroup = $partial('guest/site/guest/selection-group'); ?>
+    <!-- <?php $templateGroup = $partial('guest/site/guest/selection-group'); ?>
     <ul class="resource-list selection-resources selection-structure" data-msg-add-group="<?= $translate('Set group name') ?>" data-template-group="<?= $escapeAttr($templateGroup) ?>">
         <?php
         foreach ($selection ? $selection->structure() : [] as $groupFullPath => $group):
@@ -139,7 +140,7 @@ $selectedResourceModel = [
             ]; ?>
         <?= str_replace(array_keys($replace), array_values($replace), $templateGroup) ?>
         <?php endforeach; ?>
-    </ul>
+    </ul> -->
 
     <?php // Remaining selected resources without group. ?>
     <ul class="resource-list selection-resources">
@@ -152,6 +153,7 @@ $selectedResourceModel = [
         } ?>
         <?= $partialLoop('guest/site/guest/selection-group-resource', $selectedResourceModels) ?>
     </ul>
+    <?php /*$this->universalViewer($selectedResources) */ ?>
     <?php $this->trigger('view.browse.after'); ?>
 
 </div>
