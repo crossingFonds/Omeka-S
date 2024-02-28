@@ -1,4 +1,10 @@
-# Foundation S
+# Crossing Fonds
+
+This is a customized version of the Foundation theme. It includes a Clover as an additional IIIF viewer. At the moment, this is hard-coded into the templates, but should be moved into a proper module.
+
+To build the clover viewer, run `npm run build`
+
+## Instructions for Foundation theme:
 
 This is an Omeka S theme based on ZURB Foundation Sites. It currently comes with a default stylesheet for prototyping as well as 3 other style options. 
 
