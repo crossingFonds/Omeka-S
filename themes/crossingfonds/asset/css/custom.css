@@ -17,11 +17,6 @@
   --mirador-bg: rgb(220, 220, 220);
 }
 
-#cf_widget {
-  /* background-color: var(--mirador-bg);*/
-  /* padding-bottom: 0.4em; */
-}
-
 #content:has(#cf_widget) .selection {
   display: none;
 }
@@ -99,28 +94,7 @@ button .fas.fa-plus {
 .selection-list .selection-delete::after {
   content: unset;
 }
-
-/* Universal Viewer isn't shadow-dom'd, so need to reset all properties */
-
-.uv #content {
-  padding: unset !important;
-}
-
-.uv h1 {
-  display: none !important;
-}
-
-.uv-iiif-extension-host.uv-openseadragon-extension
-  .centerPanel
-  .content
-  .viewer {
-  padding-bottom: 16px;
-}
-
-/* Unclear how to configure the removal of attribution */
-.universal-viewer .attribution {
-  display: none !important;
-}
+/* Clover viewer changes */
 
 clover-viewer {
   height: 100%;
@@ -196,12 +170,22 @@ body.clover-loaded .loader {
   display: none;
 }
 
+/* Add some slight visual distinction between comments */
+.comment {
+  padding: 1em 0;
+}
+.comments-thread .comment + .comment,
+.comment .comment {
+  border-top: 1px solid var(--medium-gray);
+}
+
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 50px;
   aspect-ratio: 1;
   display: grid;
 }
+
 .loader:before,
 .loader:after {
   content: "";
