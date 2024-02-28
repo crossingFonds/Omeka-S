@@ -2,7 +2,7 @@
 
 This is a customized version of the Foundation theme. It includes a Clover as an additional IIIF viewer. At the moment, this is hard-coded into the templates, but should be moved into a proper module.
 
-To build the clover viewer, run `npm run build`
+To build the clover viewer, run `npm run build` — this creates `assets/js/clover.umd.js`, which registers the custom `<clover-viewer>` element. 
 
 ## Instructions for Foundation theme:
 

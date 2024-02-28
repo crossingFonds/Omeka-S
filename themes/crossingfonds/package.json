@@ -8,12 +8,9 @@
   },
   "dependencies": {
       "@samvera/clover-iiif": "^2.3.2",
-      "plyr": "^3.7.8",
-      "plyr-react": "^5.3.0",
       "preact-custom-element": "^4.3.0",
       "react": "^18.2.0",
       "react-dom": "^18.2.0",
-      "react-pdf": "^7.7.1",
       "vite-tsconfig-paths": "^4.3.1"
   },
   "devDependencies": {
