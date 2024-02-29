@@ -40,7 +40,6 @@ $resourceTypesToClasses = [
 
 $heading = $headingTerm ? $resource->value($headingTerm, $defaultHeading) : $resource->displayTitle(null, $defaultLang);
 $body = $bodyTerm ? $resource->value($bodyTerm, $defaultBody) : $resource->displayDescription(null, $defaultLang);
-$iiifUrl = $plugins->get('iiifUrl');
 
 // This is the base url, the query is added via js.
 $baseUrl = pathinfo($url('site/selection-id', ['id' => $selection ? $selection->id() : 0, 'action' => '__'], true), PATHINFO_DIRNAME);
