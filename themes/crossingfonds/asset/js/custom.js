@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!document.body.classList.contains("item")) {
     return false;
   }
+  /* Don't use item sets either */
+  if (document.body.classList.contains("item-set")) {
+    return false;
+  }
   updateHierarchy();
   updateSelectionBlock();
 });
