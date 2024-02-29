@@ -35,14 +35,13 @@ function updateHierarchy() {
 }
 
 function updateSelectionBlock() {
-  //const mirador = document.querySelector(".mirador");
   const selectionBlock = document.querySelectorAll(".selection")[0];
-  const updateButton = selectionBlock.querySelector(
-    ".item.resource > button.selection-update"
-  );
   if (!selectionBlock) {
     return;
   }
+  const updateButton = selectionBlock.querySelector(
+    ".item.resource > button.selection-update"
+  );
 
   const buttonGrp = document.createElement("div");
   buttonGrp.classList.add("button-group", "cf-selection");
