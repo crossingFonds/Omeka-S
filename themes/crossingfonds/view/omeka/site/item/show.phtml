@@ -7,8 +7,14 @@ $embedMedia = $this->siteSetting('item_media_embed', false);
 $itemMedia = $item->media();
 $showLayout = $this->themeSetting('show_layout');
 $mediaDisplay = $this->themeSetting('media_display');
+$itemId = $item->id();
+$manifestURL = '/iiif-presentation/3/item/' . $itemId . '/manifest';
+
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
 
+
+$this->headLink(['rel' => 'preload', 'href' => $manifestURL, 'as' => 'fetch', 'crossorigin' => 'anonymous']);
+$this->htmlElement('body')->setAttribute('data-manifest', $manifestURL);
 $fullWidthMainBlockContent = $this->resourcePageBlocks($item, 'full_width_main');
 $fullWidthMainHasBlocks = $fullWidthMainBlockContent->hasBlocks();
 $mainWithSidebarBlockContent = $this->resourcePageBlocks($item);
@@ -57,6 +63,10 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 
         <?php if ($mainWithSidebarHasBlocks): ?>
         <div class="main-with-sidebar cell medium-<?php echo $mainWidth; ?>">
+            <clover-viewer id="<?php echo $manifestURL; ?>">
+                <span class="loader"></span>
+            </clover-viewer>
+            <script src="<?php echo $this->assetUrl('js/clover.umd.js'); ?>" ></script>
             <?php echo $mainWithSidebarBlockContent->getBlocks(); ?>
         </div>
         <?php endif; ?>

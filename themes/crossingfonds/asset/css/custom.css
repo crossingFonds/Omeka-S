@@ -17,10 +17,6 @@
   --mirador-bg: rgb(220, 220, 220);
 }
 
-#cf_widget {
-  /* background-color: var(--mirador-bg);*/
-  /* padding-bottom: 0.4em; */
-}
 #content:has(#cf_widget) .selection {
   display: none;
 }
@@ -28,6 +24,13 @@
 #cf_widget {
   position: sticky;
   top: 0.4em;
+  display: flex;
+  height: 90vh;
+  flex-direction: column;
+}
+
+#cf_widget > .button-group {
+  flex: 0;
 }
 
 .cf-selection {
@@ -91,25 +94,125 @@ button .fas.fa-plus {
 .selection-list .selection-delete::after {
   content: unset;
 }
+/* Clover viewer changes */
 
-/* Universal Viewer isn't shadow-dom'd, so need to reset all properties */
-
-.uv #content {
-  padding: unset !important;
+clover-viewer {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+  @media (max-width: 767px) {
+    flex-direction: column !important;
+  }
 }
 
-.uv h1 {
+clover-viewer > div,
+clover-viewer > div > div,
+clover-viewer .clover-viewer-content,
+.clover-viewer-content > div {
+  height: 100%;
+  @media (max-width: 767px) {
+    flex-grow: 1 !important;
+  }
+}
+
+clover-viewer figcaption {
+  color: black !important;
+}
+
+clover-viewer clover-viewer div[role="radiogroup"] > button:hover {
+  background-color: rgba(102, 102, 102, 0.133);
+}
+
+.clover-viewer-painting,
+.clover-viewer-painting > div,
+.clover-viewer-painting > div > div {
+  flex: 1;
+  height: 100%;
+}
+
+#cf_widget:has(.clover-viewer-painting audio) {
+  height: unset;
+}
+
+clover-viewer:has(.clover-viewer-painting audio) {
+  height: unset;
+  flex: 0;
+}
+
+.clover-viewer-painting:has(audio) {
+  flex: 0;
+}
+
+.clover-viewer-painting:has(audio) > div {
+  background-color: transparent !important;
+}
+
+audio {
+  width: 100%;
+}
+
+clover-viewer ~ *:not(.button-group) {
+  display: none;
+}
+
+clover-viewer button[aria-expanded] {
   display: none !important;
 }
-
-.uv-iiif-extension-host.uv-openseadragon-extension
-  .centerPanel
-  .content
-  .viewer {
-  padding-bottom: 16px;
+body:not(.clover-loaded) clover-viewer {
+  background: rgba(102, 102, 102, 0.133);
+  display: grid;
+  place-items: center;
 }
 
-/* Unclear how to configure the removal of attribution */
-.universal-viewer .attribution {
-  display: none !important;
+body.clover-loaded .loader {
+  display: none;
+}
+
+/* Add some slight visual distinction between comments */
+.comment {
+  padding: 1em 0;
+}
+.comments-thread .comment + .comment,
+.comment .comment {
+  border-top: 1px solid var(--medium-gray);
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 50px;
+  aspect-ratio: 1;
+  display: grid;
+}
+
+.loader:before,
+.loader:after {
+  content: "";
+  grid-area: 1/1;
+  border-radius: 50%;
+  background: #f03355;
+  -webkit-mask: repeating-linear-gradient(#000 0 5px, #0000 0 10px);
+  animation: l35 1.5s infinite;
+}
+.loader:after {
+  -webkit-mask: repeating-linear-gradient(#0000 0 5px, #000 0 10px);
+  --s: -1;
+}
+@keyframes l35 {
+  0%,
+  10% {
+    transform: translate(0) rotate(0);
+  }
+  35% {
+    transform: translate(calc(var(--s, 1) * 50%)) rotate(0);
+  }
+  66% {
+    transform: translate(calc(var(--s, 1) * 50%))
+      rotate(calc(var(--s, 1) * 180deg));
+  }
+  90%,
+  100% {
+    transform: translate(0) rotate(calc(var(--s, 1) * 180deg));
+  }
 }

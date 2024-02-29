@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   updateHierarchy();
   updateSelectionBlock();
-  document.body.classList.add("");
 });
 
 function updateHierarchy() {
