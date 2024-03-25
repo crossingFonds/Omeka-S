@@ -1,0 +1,71 @@
+<?php
+$this->headLink()->appendStylesheet($this->assetUrl('css/admin/vis-form.css', 'Datavis'));
+$this->headScript()->appendFile($this->assetUrl('js/admin/vis-form.js', 'Datavis'));
+$this->ckEditor();
+
+if (isset($vis)) {
+    $this->htmlElement('body')->appendAttribute('class', 'datavis vis edit');
+} else {
+    $this->htmlElement('body')->appendAttribute('class', 'datavis vis add');
+}
+
+$form->prepare();
+$form->get('o-module-datavis:diagram_data')->setAttributes([
+    'data-diagram-elements-url' => $this->url(null, ['action' => 'get-diagram-fieldset'], ['force_canonical' => true], true),
+]);
+?>
+<?php if (isset($vis)): ?>
+<?php echo $this->pageTitle($this->translate('Edit visualization'), 1, $this->translate('Data Visualization'), $vis->title()); ?>
+<?php else: ?>
+<?php echo $this->pageTitle($this->translate('Add visualization'), 1, $this->translate('Data Visualization'), $datasetType->getLabel()); ?>
+<?php endif; ?>
+
+<?php echo $this->form()->openTag($form); ?>
+
+<div id="page-actions">
+    <?php if (isset($vis)): ?>
+    <a href="#" id="delete-button" class="delete button"><?php echo $this->translate('Delete'); ?></a>
+    <?php endif; ?>
+    <?php echo $this->hyperlink($this->translate('Cancel'), $this->url(null, ['action' => 'browse'], true), ['class' => 'button']); ?>
+    <?php if (isset($vis) && $vis->datasetModified()): ?>
+    <div class="page-action-menu">
+        <a href="#" class="button expand" aria-label="<?php echo $this->translate('Expand'); ?>" title="<?php echo $this->translate('Expand'); ?>">
+            <?php echo $this->translate('View&hellip;'); ?></a>
+            <ul class="collapsible">
+                <li><?php echo $this->hyperlink($this->translate('Dataset'), $vis->datasetUrl(['pretty_print' => true]), ['target' => '_blank']); ?></li>
+                <?php if ($vis->diagramType()): ?>
+                <li><?php echo $this->hyperlink($this->translate('Diagram'), $vis->diagramUrl(), ['target' => '_blank']); ?></li>
+                <?php endif; ?>
+            </ul>
+    </div>
+    <?php endif; ?>
+    <div class="page-action-menu">
+        <a href="#" class="button expand" aria-label="<?php echo $this->translate('Expand'); ?>" title="<?php echo $this->translate('Expand'); ?>">
+            <?php echo $this->translate('Save and&hellip;'); ?></a>
+            <ul class="collapsible">
+                <li><label><?php echo $this->translate('Generate dataset'); ?><input type="checkbox" name="generate_dataset"></label></li>
+                <li><input type="submit" name="submit_save" value="<?php echo $this->escapeHtml($this->translate('Return to visualizations')); ?>"></li>
+                <li><input type="submit" name="submit_save_remain" value="<?php echo $this->escapeHtml($this->translate('Stay on this visualization')); ?>"></li>
+            </ul>
+    </div>
+</div>
+
+<?php echo $this->formRow($form->get('o:title')); ?>
+<?php echo $this->formRow($form->get('o:description')); ?>
+<?php echo $this->formRow($form->get('o:query')); ?>
+
+<h4><?php echo $this->translate('Dataset configuration'); ?></h4>
+<?php echo $this->formRow($form->get('dataset_type')); ?>
+<?php echo $this->formHidden($form->get('o-module-datavis:dataset_type')); ?>
+<?php echo $this->formCollection($form->get('o-module-datavis:dataset_data')); ?>
+
+<h4><?php echo $this->translate('Diagram configuration'); ?></h4>
+<?php echo $this->formRow($form->get('o-module-datavis:diagram_type')); ?>
+<?php echo $this->formCollection($form->get('o-module-datavis:diagram_data')); ?>
+
+<?php echo $this->formHidden($form->get('csrf')); ?>
+<?php echo $this->form()->closeTag(); ?>
+
+<?php if (isset($vis)): ?>
+<?php echo $this->deleteConfirm($vis, 'visualization'); ?>
+<?php endif; ?>
