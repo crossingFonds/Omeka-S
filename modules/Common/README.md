@@ -22,7 +22,11 @@ copy-paste common code between modules.
 - Form elements
 
   - Array Text
+  - Custom Vocabs Select
+  - Data Textarea
   - Data Type Select
+  - Media Ingester Select
+  - Media Renderer Select
   - Media Type Select
   - Sites Page Select
   - Optional Checkbox
@@ -60,6 +64,14 @@ copy-paste common code between modules.
   Eventual install and uninstall sql can be set in `data/install/` and upgrade
   code in `data/scripts`. Another class allows to check and install resources
   (vocabularies, resource templates, custom vocabs, etc.).
+
+- Improved media type detection
+
+  In many cases, in particular with xml or json, the media type should be
+  refined to make features working. For example `text/xml` is not precise enough
+  for the module IiifServer to manage xml ocr alto files, that should be
+  identified with the right media type `application/alto+xml`. The same issue
+  occurs with xml mets, tei, json-ld, etc.
 
 
 Installation
@@ -136,6 +148,8 @@ If the message may be reused or for the messenger, the helper `PsrMessage()` can
 be used, with all the values:
 
 ```php
+// For logging, it is useless to use PsrMessage, since it is natively supported
+// by the logging.
 $message = new \Common\Stdlib\PsrMessage(
     'The {resource} #{id} has been updated by user #{userId}.', // @translate
     ['resource' => 'item', 'id' => 43, 'userId' => $user->id()]
@@ -145,6 +159,11 @@ echo $message;
 // With translation.
 echo $message->setTranslator($translator);
 ```
+
+### Translator
+
+The translator to set in PsrMessage() is available through `$this->translator()`
+in controller and view.
 
 #### Compatibility
 
@@ -161,6 +180,17 @@ Other extra data are appended.
 
 The logger stores the core messages as it, without context, so they can be
 displayed. They are not translatable if they use placeholders.
+
+* Compatibility with thrown exceptions
+
+An exception should not be translated early. Nevertheless, if you really need
+it, you can use:
+
+```php
+# Where `$this->translator` is the MvcTranslator from services, either:
+throw new \RuntimeException($this->translator->translate($message));
+throw new \Exception($message->setTranslator($this->translator)->translate());
+```
 
 #### Plural
 
@@ -237,6 +267,7 @@ TODO
 ----
 
 - [ ] Use key "psr_log" instead of "log" (see https://docs.laminas.dev/laminas-log/service-manager/#psrloggerabstractadapterfactory).
+- [ ] Use materialized views for EasyMeta?
 
 
 Warning

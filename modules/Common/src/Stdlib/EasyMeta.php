@@ -5,6 +5,9 @@ namespace Common\Stdlib;
 use Doctrine\DBAL\Connection;
 use Omeka\DataType\Manager as DataTypeManager;
 
+/**
+ * @todo Replace by materialized views?
+ */
 class EasyMeta
 {
     const DATA_TYPES_MAIN = [
@@ -205,6 +208,16 @@ class EasyMeta
     /**
      * @var array
      */
+    protected static $dataTypesByNamesUsed;
+
+    /**
+     * @var array
+     */
+    protected static $dataTypeLabelsByNames;
+
+    /**
+     * @var array
+     */
     protected static $dataTypesMainCustomVocabs;
 
     /**
@@ -216,6 +229,11 @@ class EasyMeta
      * @var array
      */
     protected static $propertyIdsByTermsAndIds;
+
+    /**
+     * @var array
+     */
+    protected static $propertyIdsByTermsAndIdsUsed;
 
     /**
      * @var array
@@ -240,6 +258,11 @@ class EasyMeta
     /**
      * @var array
      */
+    protected static $resourceClassIdsByTermsAndIdsUsed;
+
+    /**
+     * @var array
+     */
     protected static $resourceClassLabelsByTerms;
 
     /**
@@ -260,6 +283,11 @@ class EasyMeta
     /**
      * @var array
      */
+    protected static $resourceTemplateIdsByLabelsAndIdsUsed;
+
+    /**
+     * @var array
+     */
     protected static $resourceTemplateLabelsByLabelsAndIds;
 
     /**
@@ -276,6 +304,11 @@ class EasyMeta
      * @var array
      */
     protected static $vocabularyIdsByPrefixesAndUrisAndIds;
+
+    /**
+     * @var array
+     */
+    protected static $vocabularyLabelsByPrefixesAndUrisAndIds;
 
     /**
      * @var array
@@ -382,6 +415,48 @@ class EasyMeta
     }
 
     /**
+     * Get used data type names by names or all data types.
+     *
+     * @param array|int|string|null $dataTypes One or multiple data types.
+     * @return string[] The matching used data type names or all used data
+     * types, by data types.
+     */
+    public function dataTypeNamesUsed($dataTypes = null): array
+    {
+        if (is_null(static::$dataTypesByNamesUsed)) {
+            $this->initDataTypesUsed();
+        }
+        if (is_null($dataTypes)) {
+            return static::$dataTypesByNamesUsed;
+        }
+        if (is_scalar($dataTypes)) {
+            $dataTypes = [$dataTypes];
+        }
+        return array_intersect_key(static::$dataTypesByNamesUsed, array_flip($dataTypes));
+    }
+
+    /**
+     * Get data type labels by names or all data types.
+     *
+     * @param array|int|string|null $dataTypes One or multiple data types.
+     * @return string[] The matching data type labels or all data types labels,
+     * by data types.
+     */
+    public function dataTypeLabels($dataTypes = null): array
+    {
+        if (is_null(static::$dataTypeLabelsByNames)) {
+            $this->initDataTypes();
+        }
+        if (is_null($dataTypes)) {
+            return static::$dataTypeLabelsByNames;
+        }
+        if (is_scalar($dataTypes)) {
+            $dataTypes = [$dataTypes];
+        }
+        return array_intersect_key(static::$dataTypeLabelsByNames, array_flip($dataTypes));
+    }
+
+    /**
      * Get the main data type ("literal", "resource", or "uri") of a name.
      *
      * @param string|null $name A name.
@@ -430,6 +505,29 @@ class EasyMeta
     }
 
     /**
+     * Get the custom vocabs main type ("literal", "resource" or "uri").
+     *
+     * @todo Check for dynamic custom vocabs.
+     *
+     * @param array|int|string|null $dataTypes One or multiple data types.
+     * @return string[] The matching data type main types or all data types
+     * main types, by data types.
+     */
+    public function dataTypeMainCustomVocabs($dataTypes = null): array
+    {
+        if (is_null(static::$dataTypesMainCustomVocabs)) {
+            $this->initDataTypesMainCustomVocabs();
+        }
+        if (is_null($dataTypes)) {
+            return static::$dataTypesMainCustomVocabs;
+        }
+        if (is_scalar($dataTypes)) {
+            $dataTypes = [$dataTypes];
+        }
+        return array_intersect_key(static::$dataTypesMainCustomVocabs, array_flip($dataTypes));
+    }
+
+    /**
      * Get a property id by JSON-LD term or by numeric id.
      *
      * @param int|string|null $termOrId A id or a term.
@@ -463,6 +561,28 @@ class EasyMeta
             $termsOrIds = [$termsOrIds];
         }
         return array_intersect_key(static::$propertyIdsByTermsAndIds, array_flip($termsOrIds));
+    }
+
+    /**
+     * Get used property ids by JSON-LD terms or by numeric ids.
+     *
+     * @param array|int|string|null $termsOrIds One or multiple ids or terms.
+     * @return int[] The used property ids matching terms or ids, or all
+     * used properties by terms. When the input contains terms and ids matching
+     * the same properties, they are all returned.
+     */
+    public function propertyIdsUsed($termsOrIds = null): array
+    {
+        if (is_null(static::$propertyIdsByTermsAndIdsUsed)) {
+            $this->initPropertiesUsed();
+        }
+        if (is_null($termsOrIds)) {
+            return array_diff_key(static::$propertyIdsByTermsAndIdsUsed, array_flip(static::$propertyIdsByTermsAndIdsUsed));
+        }
+        if (is_scalar($termsOrIds)) {
+            $termsOrIds = [$termsOrIds];
+        }
+        return array_intersect_key(static::$propertyIdsByTermsAndIdsUsed, array_flip($termsOrIds));
     }
 
     /**
@@ -582,6 +702,28 @@ class EasyMeta
     }
 
     /**
+     * Get used resource class ids by JSON-LD terms or by numeric ids.
+     *
+     * @param array|int|string|null $termsOrIds One or multiple ids or terms.
+     * @return int[] The used resource class ids matching terms or ids, or all
+     * used resource classes by terms. When the input contains terms and ids
+     * matching the same resource classes, they are all returned.
+     */
+    public function resourceClassIdsUsed($termsOrIds = null): array
+    {
+        if (is_null(static::$resourceClassIdsByTermsAndIdsUsed)) {
+            $this->initResourceClassesUsed();
+        }
+        if (is_null($termsOrIds)) {
+            return array_diff_key(static::$resourceClassIdsByTermsAndIdsUsed, array_flip(static::$resourceClassIdsByTermsAndIdsUsed));
+        }
+        if (is_scalar($termsOrIds)) {
+            $termsOrIds = [$termsOrIds];
+        }
+        return array_intersect_key(static::$resourceClassIdsByTermsAndIdsUsed, array_flip($termsOrIds));
+    }
+
+    /**
      * Get a resource class term by JSON-LD term or by numeric id.
      *
      * @param int|string|null $termOrId A id or a term.
@@ -698,6 +840,28 @@ class EasyMeta
     }
 
     /**
+     * Get used resource template ids by labels or by numeric ids.
+     *
+     * @param array|int|string|null $labelsOrIds One or multiple ids or labels.
+     * @return string[] The used resource template ids matching labels or ids,
+     * or all used resource templates by labels. When the input contains labels
+     * and ids matching the same templates, they are all returned.
+     */
+    public function resourceTemplateIdsUsed($labelsOrIds = null): array
+    {
+        if (is_null(static::$resourceTemplateIdsByLabelsAndIdsUsed)) {
+            $this->initResourceTemplatesUsed();
+        }
+        if (is_null($labelsOrIds)) {
+            return array_diff_key(static::$resourceTemplateIdsByLabelsAndIdsUsed, array_flip(static::$resourceTemplateIdsByLabelsAndIdsUsed));
+        }
+        if (is_scalar($labelsOrIds)) {
+            $labelsOrIds = [$labelsOrIds];
+        }
+        return array_intersect_key(static::$resourceTemplateIdsByLabelsAndIdsUsed, array_flip($labelsOrIds));
+    }
+
+    /**
      * Get a resource template label by label or by numeric id.
      *
      * @param int|string|null $labelOrId A id or a label.
@@ -752,7 +916,7 @@ class EasyMeta
      * Get vocabulary ids by uris, prefix or by numeric ids.
      *
      * @param array|int|string|null $prefixesOrUrisOrIds One or multiple ids,
-     *   uris or prefixes.
+     * uris or prefixes.
      * @return int[] The vocabulary ids matching uris, prefixes or ids, or all
      * vocabularies by prefixes. When the input contains uris, prefixes and ids
      * matching the same vocabularies, they are all returned.
@@ -796,7 +960,7 @@ class EasyMeta
      * Get vocabulary prefixes by uris, prefixes or numeric ids.
      *
      * @param array|int|string|null $prefixesOrUrisOrIds One or multiple ids,
-     *   uris or prefixes.
+     * uris or prefixes.
      * @return string[] The vocabulary prefixes matching uris, prefixes or ids,
      * or all vocabularies prefixes by ids. When the input contains uris,
      * prefixes and ids matching the same vocabularies, they are all returned.
@@ -841,10 +1005,10 @@ class EasyMeta
      * Get vocabulary uris by uris, prefixes or numeric ids.
      *
      * @param array|int|string|null $prefixesOrUrisOrIds One or multiple ids,
-     *   uris or prefixes.
-     * @return string[] The vocabulary uris matching terms or ids, or all
-     * vocabulary uris by prefixes. When the input contains uris, prefixes and
-     * ids matching the same vocabularies, they are all returned.
+     * uris or prefixes.
+     * @return string[] The vocabulary uris matching ids, uris or prefixes, or
+     * all vocabulary uris by prefixes. When the input contains uris, prefixes
+     * and ids matching the same vocabularies, they are all returned.
      */
     public function vocabularyUrisByPrefixes($prefixesOrUrisOrIds = null): array
     {
@@ -861,10 +1025,69 @@ class EasyMeta
         return array_intersect_key(static::$vocabularyUrisByPrefixesAndUrisAndIds, array_flip($prefixesOrUrisOrIds));
     }
 
+    /**
+     * Get a vocabulary label by uris, prefixes or numeric ids.
+     *
+     * @param array|int|string|null $prefixesOrUrisOrIds One or multiple ids,
+     * uris or prefixes.
+     * @return string|null The vocabulary label matching uri, prefix or id.
+     */
+    public function vocabularyLabel($prefixOrUriOrId): ?string
+    {
+        if (is_null(static::$vocabularyLabelsByPrefixesAndUrisAndIds)) {
+            $this->initVocabularies();
+        }
+        return static::$vocabularyLabelsByPrefixesAndUrisAndIds[$prefixOrUriOrId] ?? null;
+    }
+
+    /**
+     * Get vocabulary labels by uris, prefixes or numeric ids.
+     *
+     * @param array|int|string|null $prefixesOrUrisOrIds One or multiple ids,
+     * uris or prefixes.
+     * @return string[] The vocabulary labels matching ids, uris or prefixes, or
+     * all vocabulary uris by prefixes. When the input contains uris, prefixes
+     * and ids matching the same vocabularies, they are all returned.
+     */
+    public function vocabularyLabels($prefixesOrUrisOrIds = null): array
+    {
+        if (is_null(static::$vocabularyLabelsByPrefixesAndUrisAndIds)) {
+            $this->initVocabularies();
+        }
+        if (is_null($prefixesOrUrisOrIds)) {
+            return array_intersect_key(static::$vocabularyLabelsByPrefixesAndUrisAndIds, static::$vocabularyIdsByPrefixes);
+        }
+        if (is_scalar($prefixesOrUrisOrIds)) {
+            $prefixesOrUrisOrIds = [$prefixesOrUrisOrIds];
+        }
+        return array_intersect_key(static::$vocabularyLabelsByPrefixesAndUrisAndIds, array_flip($prefixesOrUrisOrIds));
+    }
+
     protected function initDataTypes(): void
     {
         static::$dataTypesByNames = $this->dataTypeManager->getRegisteredNames();
         static::$dataTypesByNames = array_combine(static::$dataTypesByNames, static::$dataTypesByNames);
+        foreach (static::$dataTypesByNames as $dataTypeName) {
+            $dataType = $this->dataTypeManager->get($dataTypeName);
+            static::$dataTypeLabelsByNames[$dataTypeName] = $dataType->getLabel();
+        }
+    }
+
+    protected function initDataTypesUsed(): void
+    {
+        // Most of the time, we don't need used data types and all data types at
+        // the same time, so fetching them is done separately of initDataTypes().
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select(
+                '`value`.`type` AS name',
+                '`value`.`type` AS name2'
+            )
+            ->from('`value`', 'value')
+            ->groupBy('`value`.`type`')
+            ->orderBy('`value`.`type`', 'asc')
+        ;
+        static::$dataTypesByNamesUsed = $this->connection->executeQuery($qb)->fetchAllKeyValue();
     }
 
     protected function initDataTypesMainCustomVocabs(): void
@@ -883,7 +1106,7 @@ class EasyMeta
              */
             $sql = <<<'SQL'
 SELECT
-    `id` AS id,
+    CONCAT('customvocab:', `id`) AS "customvocab",
     CASE
         WHEN `uris` != "" THEN "uri"
         WHEN `item_set_id` IS NOT NULL THEN "resource"
@@ -917,10 +1140,33 @@ SQL;
 
         static::$propertyIdsByTerms = array_map('intval', array_column($result, 'id', 'term'));
         static::$propertyIdsByTermsAndIds = static::$propertyIdsByTerms
-            + array_column($result, 'id', 'id');
+            + array_map('intval', array_column($result, 'id', 'id'));
         static::$propertyLabelsByTerms = array_column($result, 'label', 'term');
         static::$propertyLabelsByTermsAndIds = static::$propertyLabelsByTerms
             + array_column($result, 'label', 'id');
+    }
+
+    protected function initPropertiesUsed(): void
+    {
+        // Most of the time, we don't need used properties and all properties at
+        // the same time, so fetching them is done separately of initProperties().
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select(
+                'CONCAT(`vocabulary`.`prefix`, ":", `property`.`local_name`) AS term',
+                '`property`.`id` AS id'
+            )
+            ->from('`property`', 'property')
+            ->innerJoin('property', 'vocabulary', 'vocabulary', '`property`.`vocabulary_id` = `vocabulary`.`id`')
+            ->innerJoin('property', 'value', 'value', '`property`.`id` = `value`.`property_id`')
+            ->groupBy('`property`.`id`')
+            ->orderBy('`vocabulary`.`id`', 'asc')
+            ->addOrderBy('`property`.`id`', 'asc')
+        ;
+        $result = $this->connection->executeQuery($qb)->fetchAllKeyValue();
+        $propertyIdsByTerms = array_map('intval', $result);
+        $propertyIdsByIds = array_combine($propertyIdsByTerms, $propertyIdsByTerms);
+        static::$propertyIdsByTermsAndIdsUsed = $propertyIdsByTerms + $propertyIdsByIds;
     }
 
     protected function initResourceClasses(): void
@@ -947,6 +1193,29 @@ SQL;
             + array_column($result, 'label', 'id');
     }
 
+    protected function initResourceClassesUsed(): void
+    {
+        // Most of the time, we don't need used classes and all classes at the
+        // same time, so fetching them is done separately of initResourceClasses().
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select(
+                'CONCAT(`vocabulary`.`prefix`, ":", `resource_class`.`local_name`) AS term',
+                '`resource_class`.`id` AS id'
+            )
+            ->from('`resource_class`', 'resource_class')
+            ->innerJoin('resource_class', 'vocabulary', 'vocabulary', '`resource_class`.`vocabulary_id` = `vocabulary`.`id`')
+            ->innerJoin('resource_class', 'resource', 'resource', '`resource_class`.`id` = `resource`.`resource_class_id`')
+            ->groupBy('`resource_class`.`id`')
+            ->orderBy('`vocabulary`.`id`', 'asc')
+            ->addOrderBy('`resource_class`.`id`', 'asc')
+        ;
+        $result = $this->connection->executeQuery($qb)->fetchAllKeyValue();
+        $resourceClassIdsByTerms = array_map('intval', $result);
+        $resourceClassIdsByIds = array_combine($resourceClassIdsByTerms, $resourceClassIdsByTerms);
+        static::$resourceClassIdsByTermsAndIdsUsed = $resourceClassIdsByTerms + $resourceClassIdsByIds;
+    }
+
     protected function initResourceTemplates(): void
     {
         $qb = $this->connection->createQueryBuilder();
@@ -967,6 +1236,25 @@ SQL;
             + array_flip(static::$resourceTemplateIdsByLabels);
     }
 
+    protected function initResourceTemplatesUsed(): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select(
+                '`resource_template`.`label` AS label',
+                '`resource_template`.`id` AS id'
+            )
+            ->from('resource_template', 'resource_template')
+            ->innerJoin('resource_template', 'resource', 'resource', '`resource_template`.`id` = `resource`.`resource_template_id`')
+            ->groupBy('`resource_template`.`id`')
+            ->orderBy('`resource_template`.`label`', 'asc')
+        ;
+        $result = $this->connection->executeQuery($qb)->fetchAllKeyValue();
+        $resourceTemplateIdsByLabels = array_map('intval', $result);
+        $resourceTemplateIdsByIds = array_combine($resourceTemplateIdsByLabels, $resourceTemplateIdsByLabels);
+        static::$resourceTemplateIdsByLabelsAndIdsUsed = $resourceTemplateIdsByLabels + $resourceTemplateIdsByIds;
+    }
+
     protected function initVocabularies(): void
     {
         $qb = $this->connection->createQueryBuilder();
@@ -974,12 +1262,12 @@ SQL;
             ->select(
                 '`vocabulary`.`prefix` AS prefix',
                 '`vocabulary`.`namespace_uri` AS uri',
+                '`vocabulary`.`label` AS label',
                 '`vocabulary`.`id` AS id'
             )
             ->from('`vocabulary`', 'vocabulary')
             ->groupBy('`vocabulary`.`id`')
             ->orderBy('`vocabulary`.`id`', 'asc')
-            ->addOrderBy('`property`.`id`', 'asc')
         ;
         $result = $this->connection->executeQuery($qb)->fetchAllAssociative();
 
@@ -988,6 +1276,9 @@ SQL;
         static::$vocabularyIdsByPrefixesAndUrisAndIds = static::$vocabularyIdsByPrefixes
             + static::$vocabularyIdsByUris
             + array_combine(static::$vocabularyIdsByPrefixes, static::$vocabularyIdsByPrefixes);
+        static::$vocabularyLabelsByPrefixesAndUrisAndIds = array_column($result, 'label', 'prefix')
+            + array_column($result, 'label', 'uri')
+            + array_column($result, 'label', 'id');
         static::$vocabularyPrefixesByPrefixesAndUrisAndIds = array_column($result, 'prefix', 'prefix')
             + array_column($result, 'prefix', 'uri')
             + array_column($result, 'prefix', 'id');

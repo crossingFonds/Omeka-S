@@ -6,7 +6,9 @@ return [
     'service_manager' => [
         'factories' => [
             'EasyMeta' => Service\Stdlib\EasyMetaFactory::class,
-            // TODO Use a delegator for dispatcher and logger factories? A direct factory is simpler for the same result for these services.
+            // TODO Use a delegator for file, dispatcher and logger factories? A direct factory is simpler for the same result for these services.
+            'Omeka\File\TempFileFactory' => Service\File\TempFileFactoryFactory::class,
+            'Omeka\File\Validator' => Service\File\ValidatorFactory::class,
             // Allow to use the PSR-3 formatter in job.
             'Omeka\Job\Dispatcher' => Service\Job\DispatcherFactory::class,
             // Allow to add the PSR-3 formatter to default logger.
@@ -14,7 +16,7 @@ return [
         ],
         'delegators' => [
             'Laminas\I18n\Translator\TranslatorInterface' => [
-                __NAMESPACE__ => Service\Delegator\TranslatorDelegatorFactory::class,
+                Service\Delegator\TranslatorDelegatorFactory::class,
             ],
         ],
     ],
@@ -33,9 +35,11 @@ return [
         ],
         'factories' => [
             'assetUrl' => Service\ViewHelper\AssetUrlFactory::class,
+            'defaultSite' => Service\ViewHelper\DefaultSiteFactory::class,
             'easyMeta' => Service\ViewHelper\EasyMetaFactory::class,
             'matchedRouteName' => Service\ViewHelper\MatchedRouteNameFactory::class,
             'mediaTypeSelect' => Service\ViewHelper\MediaTypeSelectFactory::class,
+            'translator' => Service\ViewHelper\TranslatorFactory::class,
         ],
     ],
     // Add some common elements and make standard elements and some omeka ones optional.
@@ -43,6 +47,7 @@ return [
     'form_elements' => [
         'invokables' => [
             Form\Element\ArrayText::class => Form\Element\ArrayText::class,
+            Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
             Form\Element\OptionalCheckbox::class => Form\Element\OptionalCheckbox::class,
             Form\Element\OptionalDate::class => Form\Element\OptionalDate::class,
             Form\Element\OptionalDateTime::class => Form\Element\OptionalDateTime::class,
@@ -55,7 +60,11 @@ return [
         ],
         'factories' => [
             // This element does not exist in Omeka.
+            Form\Element\CustomVocabsSelect::class => Service\Form\Element\CustomVocabsSelectFactory::class,
+            // This element does not exist in Omeka.
             Form\Element\DataTypeSelect::class => Service\Form\Element\DataTypeSelectFactory::class,
+            Form\Element\MediaIngesterSelect::class => Service\Form\Element\MediaIngesterSelectFactory::class,
+            Form\Element\MediaRendererSelect::class => Service\Form\Element\MediaRendererSelectFactory::class,
             // This element does not exist in Omeka.
             Form\Element\MediaTypeSelect::class => Service\Form\Element\MediaTypeSelectFactory::class,
             // This element is not the same than \Omeka\Form\Element\SitePageSelect (singular site).
@@ -78,6 +87,8 @@ return [
     'controller_plugins' => [
         'factories' => [
             'easyMeta' => Service\ControllerPlugin\EasyMetaFactory::class,
+            'specifyMediaType' => Service\ControllerPlugin\SpecifyMediaTypeFactory::class,
+            'translator' => Service\ControllerPlugin\TranslatorFactory::class,
         ],
     ],
     'translator' => [

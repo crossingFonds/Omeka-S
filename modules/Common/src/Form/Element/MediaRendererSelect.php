@@ -4,7 +4,7 @@ namespace Common\Form\Element;
 
 use Laminas\Form\Element\Select;
 
-class MediaTypeSelect extends Select
+class MediaRendererSelect extends Select
 {
     use TraitOptionalElement;
     use TraitPrependValuesOptions;
