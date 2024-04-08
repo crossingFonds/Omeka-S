@@ -25,6 +25,7 @@ RUN apt-get -qq update \
         libicu-dev \
         nano \
         libvips-tools \
+        sendmail \
     && rm -rf /var/lib/apt/lists/* \
     && a2enmod rewrite headers \
 # Install the PHP extensions we need
@@ -43,9 +44,11 @@ RUN wget --no-verbose "https://github.com/omeka/omeka-s/releases/download/v4.0.4
     && rm -rf /var/www/html/ \
     && mv /var/www/omeka-s/ /var/www/html/
 
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 COPY docker/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 COPY docker/.htaccess /var/www/html/.htaccess
 COPY docker/php.ini /usr/local/etc/php/conf.d/omeka.ini
+COPY docker/sendmail.ini /usr/local/etc/php/conf.d/sendmail.ini
 COPY --chown=www-data:www-data --chmod=771 themes /var/www/html/themes/
 COPY --chown=www-data:www-data --chmod=771 modules /var/www/html/modules/
 
@@ -54,4 +57,4 @@ RUN chown www-data:www-data -R /var/www/html/themes/ /var/www/html/modules/ \
 
 VOLUME /var/www/html
 
-CMD ["apache2-foreground"]
+CMD ["/docker-entrypoint.sh"]
