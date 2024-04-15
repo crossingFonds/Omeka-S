@@ -18,11 +18,10 @@ services:
       MYSQL_PASSWORD: omeka
 
   omeka:
-    #image:  docker.io/giocomai/omeka-s-docker:v3.2.3.production
+    # image:  dhilsfu/crossingfonds
     container_name: omeka
     build:
       context: .
-      target: omeka
     platform: linux/arm64/v8
     ports:
       - "8080:80"
