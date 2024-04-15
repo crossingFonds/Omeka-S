@@ -99,7 +99,7 @@ class AnonymousController extends AbstractGuestController
 
         $site = $this->currentSite();
 
-        $form = $this->getUserForm($user);
+        $form = $this->getUserForm($user, ['current_password' => false]);
 
         $view = new ViewModel([
             'site' => $site,
