@@ -19,3 +19,19 @@
         inlineGallery.openGallery();
     });
   })(jQuery)
+
+  document.addEventListener("DOMContentLoaded", function() {
+      const dtElements = document.querySelectorAll("dt.property");
+      let hoveredContent = "";
+
+      dtElements.forEach(function(dt) {
+        dt.addEventListener("mouseover", function() {
+          hoveredContent = this.textContent.trim();
+          console.log("Hovered content:", hoveredContent);
+
+
+        });
+      });
+    });
+
+// console.log("Hovered content:");

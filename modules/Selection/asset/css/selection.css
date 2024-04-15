@@ -7,7 +7,6 @@
     }
     .selection-list ul {
         list-style-type: none;
-        padding-left: 0;
     }
     .selection-list .selection-group .selection-resources {
         padding-left: 2em;
@@ -46,6 +45,7 @@
     .selection-list .move-resource::after,
     .selection-list .selection-delete::after {
         padding-left: 1em;
+        display: inline;
     }
     .selection-list.selections.inactive,
     .selection-list.selection-empty.inactive {
@@ -74,4 +74,8 @@
     .selection-update.unselected {
          color:gray;
     }
+
+    
+
+
 }

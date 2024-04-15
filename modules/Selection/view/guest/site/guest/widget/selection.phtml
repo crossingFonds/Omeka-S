@@ -7,12 +7,15 @@ $translate = $this->plugin('translate');
 $url = $this->plugin('url');
 $hyperlink = $this->plugin('hyperlink');
 ?>
+<h2> Curation </h2>
 
 <ul>
     <li>
         <?= $hyperlink(
-            $translate('See selection'), // @translate
+            $translate('See curation'), // @translate
             $url('site/guest/selection', [], true)
         ) ?>
     </li>
 </ul>
+
+

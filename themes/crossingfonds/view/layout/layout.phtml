@@ -90,12 +90,245 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
                 <?php if ($footerContent = $this->themeSetting('footer')): ?>
                 <?php echo $footerContent; ?>
                 <?php else: ?>
-                    <?php echo $this->translate('Powered by Omeka S'); ?>
+                    <?php echo $this->translate('Powered by Omeka Sz'); ?>
                 <?php endif; ?>
             </footer>
         </div>
         <script>
           $(document).foundation();
+  
+
+          $(document).ready(function() {
+            console.log('Loaded successfully.');
+          });
+
+          $(document).ready(function() {
+            // Debug: Check if jQuery is loaded
+            if (typeof jQuery == 'undefined') {
+              console.error('jQuery is not loaded.');
+            } else {
+              console.log('jQuery is loaded.');
+            }
+
+            var contributeDiv = document.getElementById('contribute');
+            var rightSidebar = document.querySelector('.right-sidebar');
+
+            rightSidebar.lastElementChild.appendChild(contributeDiv);
+
+            var submitButtons = document.querySelectorAll('.fas.fa-comment');
+
+            // Iterate through each matched element
+            submitButtons.forEach(function(submitButton) {
+                // Change the value attribute
+                submitButton.value = "Submit Analysis";
+            });
+
+            var commentLabel = document.querySelector('label[for="o-module-comment:body"]');
+
+            // Check if the label element exists
+            if (commentLabel) {
+                // Change the text content to "Analysis"
+                commentLabel.textContent = "Analysis";
+            }
+
+            // $('.url-value-link').each(function() {
+            //     // Create a new <p> element
+            //     var paragraph = $('<p>');
+
+            //     // Copy the content from the <a> element to the <p> element
+            //     paragraph.html($(this).html());
+
+            //     // Replace the <a> element with the <p> element
+            //     $(this).replaceWith(paragraph);
+            // });
+
+
+            // Check if jQuery is loaded
+            // if (typeof jQuery !== 'undefined') {
+            //     // Wait for the document to be ready
+            //     $(document).ready(function() {
+            //         // Find the <dt> element with the specified text
+            //         var dtElement = $('dt').filter(function() {
+            //             return $(this).text().trim() === 'User Contributed Tag';
+            //         });
+
+            //         // Check if the <dt> element is found
+            //         if (dtElement.length > 0) {
+            //             // Get all <a> elements under this <dt> element
+            //             var links = dtElement.find('a');
+
+            //             // Loop through each <a> element
+            //             links.each(function() {
+            //                 // Option 1: Convert <a> into <p>
+            //                 var paragraph = $('<p>').html($(this).html()); // Preserve inner content
+            //                 $(this).replaceWith(paragraph);
+
+            //                 // Option 2: Disable link effect (remove href attribute)
+            //                 // $(this).removeAttr('href');
+            //             });
+            //         } else {
+            //             console.error('The specified <dt> element was not found.');
+            //         }
+            //     });
+            // } else {
+            //     console.error('jQuery is not loaded.');
+            // }
+
+
+
+            // var commentsContainer = document.getElementById("comments");
+
+            // // Check if the comments container exists
+            // if (commentsContainer) {
+            //     // Find the <p> tag inside the comments container
+            //     var commentParagraph = commentsContainer.querySelector("p");
+
+            //     // Check if the <p> tag exists
+            //     if (commentParagraph) {
+            //         // Change the text content
+            //         commentParagraph.textContent = "No analysis yet! Be the first to add one!";
+            //     }
+            // }
+
+            var textareaElement = document.querySelector('textarea[name="o-module-comment:body"]');
+
+            // Check if the textarea element exists
+            if (textareaElement) {
+                // Change the placeholder text
+                textareaElement.placeholder = "My analysis ...";
+            }
+
+            var dtTags = $('dt');
+            if (dtTags.length === 0) {
+              console.error('No <dt> tags found.');
+            } else {
+              console.log(dtTags.length + ' <dt> tags found.');
+            }
+
+            dtTags.on('mouseover', function() {
+              var dtContent = $(this).text().trim();
+            // var dtContent = $(this).clone().children().remove().end().text().trim();
+              console.log(dtContent);
+
+              var metaComment;
+
+            if (dtContent === "Identifier") {
+                metaComment = "An unambiguous reference to the resource within a given context.";   
+            } else if (dtContent === "Title") {
+                metaComment = "A name given to the resource.";
+            } else if (dtContent === "Description") {
+                metaComment = "An account of the resource.";
+            } else if (dtContent === "Format") {
+                metaComment = "The file format, physical medium, or dimensions of the resource.";
+            } else if (dtContent === "Type") {
+                metaComment = "The nature or genre of the resource.";
+            } else if (dtContent === "Source") {
+                metaComment = "A related resource from which the described resource is derived.";
+            } else if (dtContent === "Provenance") {
+                metaComment = "A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation.";
+            } else if (dtContent === "Creator") {
+                metaComment = "An entity primarily responsible for making the resource.";
+            } else if (dtContent === "Date Created") {
+                metaComment = "Date of creation of the resource.";
+            } else if (dtContent === "Is Part Of") {
+                metaComment = "Location in archival hierarchy.";
+            } else if (dtContent === "Access Rights") {
+                metaComment = "Information about who can access the resource or an indication of its security status.";
+            } else if (dtContent === "Rights Holder") {
+                metaComment = "A person or organization owning or managing rights over the resource.";
+            } else if (dtContent === "Coverage") {
+                metaComment = "The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.";
+            } else if (dtContent === "Contributor") {
+                metaComment = "An entity responsible for making contributions to the resource.";
+            } else if (dtContent === "Case Study") {
+                metaComment = "A set to group resources together.";
+            } else if (dtContent === "Theme") {
+                metaComment = "A domain that can be used for some purposes.";
+            } else if (dtContent === "Subject") {
+                metaComment = "A subject to describe the resource.";
+            } else if (dtContent === "Tags and Specific Analysis") {
+                metaComment = "Tag that can be used for some purposes or for upgrade from Omeka Classic.";
+            } else if (dtContent === "Places, Locations and Nations") {
+                metaComment = "Spatial characteristics of the resource.";
+            } else if (dtContent === "Note") {
+                metaComment = "A specific or generic information on a resource, generally for internal purposes.";
+            } else if (dtContent === "Repository") {
+                metaComment = "A related resource from which the described resource is derived.";
+            } else if (dtContent === "Region") {
+                metaComment = "Spatial characteristics of the resource has purpose.";
+            } else if (dtContent === "Link to related resource at source") {
+                metaComment = "Link to related resource at source.";
+            } else if (dtContent === "Accrual Method") {
+                metaComment = "The method by which items are added to a collection.";
+            } else if (dtContent === "Extent") {
+                metaComment = "The size or duration of the resource.";
+            } else if (dtContent === "Language") {
+                metaComment = "A language of the resource.";
+            } else if (dtContent === "Rights") {
+                metaComment = "Information about rights held in and over the resource.";
+            } else if (dtContent === "Set") {
+                metaComment = "A set to group resources together.";
+            } else if (dtContent === "start date") {
+                metaComment = "startDate value of a schema:Event.";
+            } else if (dtContent === "end date") {
+                metaComment = "endDate of a schema:Event.";
+            } else if (dtContent === "name") {
+                metaComment = "A name for some thing.";
+            } else if (dtContent === "gender") {
+                metaComment = "The gender of this Agent (typically but not necessarily 'male' or 'female').";
+            } else if (dtContent === "birth date") {
+                metaComment = "vra:agentDate type life (earliestDate).";
+            } else if (dtContent === "death date") {
+                metaComment = "vra:agentDate type life (latestDate).";
+            } else if (dtContent === "date created") {
+                metaComment = "date of creation has scope.";
+            } else if (dtContent === "scope") {
+                metaComment = "The scope or context in which the resource is used within the Annotation.";
+            } else if (dtContent === "motivated by") {
+                metaComment = "The relationship between an Annotation and a Motivation that describes the reason for the Annotation's creation.";
+            } else if (dtContent === "Resource class") {
+                metaComment = " A type for the resource. Different types have different default properties attached to them.";
+            }
+
+
+
+              // $(this).append('<span class="hovered-description" style="font-size: 14px; font-weight: normal; font-style: italic;">' + metaComment + '</span>');
+
+            // Toggle visibility of added text when hovering
+            // $(this).on('mouseleave', function() {
+            //     $(this).find('.hovered-description').remove();
+            // });
+
+            var spanElement = $('<span class="hovered-description" style="font-size: 14px; font-weight: normal; font-style: italic;">' + metaComment + '</span>');
+    
+            // Inserting the span element after the dt
+            $(this).after(spanElement);
+            
+            // Toggle visibility of added text when hovering
+            $(this).on('mouseleave', function() {
+                spanElement.remove();
+            });
+
+            // Appending the span to the container
+            // container.append(dtElement).append(spanElement);
+            
+            // // Appending the container to the dtTags
+            // dtTags.append(container);
+            
+            // // Toggle visibility of added text when hovering
+            // container.on('mouseleave', function() {
+            //     $(this).find('.hovered-description').remove();
+            // });
+
+            
+              
+
+            });
+
+
+          });
+
+
         </script>
     </body>
 </html>
