@@ -55,25 +55,66 @@ function valueSuggestAutocomplete(suggestInput) {
             $(this).css('cursor', 'default');
         },
         // Prepare the value when the user selects a suggestion.
+        // onSelect: function(suggestion) {
+        //     // Set value as URI type
+        //     suggestInput.val(suggestion.value)
+        //         .attr('placeholder', suggestion.value);
+        //     suggestInput.attr('data-value', suggestion.value);
+        //     suggestInput.val(suggestion.value);
+        //     if (suggestion.data.uri) {
+        //         suggestInput.attr('data-uri', suggestion.data.uri);
+        //         var link = $('<a>')
+        //             .attr('href', suggestion.data.uri)
+        //             .attr('target', '_blank')
+        //             // Unlike value-suggest-admin, the value is used as text.
+        //             .text(suggestion.value);
+        //             //help
+        //         suggestHidden.val(link[0].outerHTML);
+        //     } else {
+        //         suggestInput.attr('data-uri', '');
+        //         suggestHidden.val(suggestion.value);
+
+
+        //     }
+
+        //     // suggestInput.val(suggestion.value)
+        //     //     .attr('placeholder', suggestion.value);
+        //     // suggestInput.attr('data-value', suggestion.value);
+        //     // suggestInput.val(suggestion.value);
+        //     // suggestHidden.val(suggestion.value);
+        // }
+
         onSelect: function(suggestion) {
-            // Set value as URI type
-            suggestInput.val(suggestion.value)
-                .attr('placeholder', suggestion.value);
-            suggestInput.attr('data-value', suggestion.value);
-            suggestInput.val(suggestion.value);
-            if (suggestion.data.uri) {
-                suggestInput.attr('data-uri', suggestion.data.uri);
-                var link = $('<a>')
-                    .attr('href', suggestion.data.uri)
-                    .attr('target', '_blank')
-                    // Unlike value-suggest-admin, the value is used as text.
-                    .text(suggestion.value);
-                suggestHidden.val(link[0].outerHTML);
-            } else {
-                suggestInput.attr('data-uri', '');
-                suggestHidden.val(suggestion.value);
-            }
+        // Debugging
+        console.log("Selected suggestion:", suggestion);
+
+        // Set value as URI type
+        suggestInput.val(suggestion.value).attr('placeholder', suggestion.value);
+        suggestInput.attr('data-value', suggestion.value);
+        suggestInput.val(suggestion.value);
+
+        // Debugging
+        console.log("Value set to input:", suggestion.value);
+
+        if (suggestion.data.uri) {
+            suggestInput.attr('data-uri', suggestion.data.uri);
+            var link = $('<a>')
+                .attr('href', suggestion.data.uri)
+                .attr('target', '_blank')
+                // Unlike value-suggest-admin, the value is used as text.
+                .text(suggestion.value);
+
+            // Debugging
+            console.log("Generated link:", link);
+
+            suggestHidden.val(suggestion.value);
+
+            console.log("Suggest Hidden")
+        } else {
+            suggestInput.attr('data-uri', '');
+            suggestHidden.val(suggestion.value);
         }
+    }
     };
 
     // For the "valuesuggestall" type, assume the first response contains

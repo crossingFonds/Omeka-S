@@ -86,6 +86,7 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
                 <?php endif; ?>
                 <?php echo $this->content; ?>
             </div>
+
             <footer>
                 <?php if ($footerContent = $this->themeSetting('footer')): ?>
                 <?php echo $footerContent; ?>
@@ -94,6 +95,8 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
                 <?php endif; ?>
             </footer>
         </div>
+
+
         <script>
           $(document).foundation();
   
@@ -130,6 +133,62 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
                 // Change the text content to "Analysis"
                 commentLabel.textContent = "Analysis";
             }
+
+            // Get all <p> elements on the page
+            var paragraphs = document.querySelectorAll('p');
+
+            // Loop through each <p> element
+            paragraphs.forEach(function(paragraph) {
+                // Check if the content matches the target content
+                if (paragraph.textContent.trim() === "No comment yet! Be the first to add one!") {
+                    // Hide the element by setting its display style to 'none'
+                    paragraph.style.display = 'none';
+                }
+            });
+
+
+            // Select all <a> elements
+            // var anchorElements = document.querySelectorAll('a');
+
+            // // Loop through each <a> element
+            // anchorElements.forEach(function(anchorElement) {
+            //     // Create a new <p> element
+            //     var paragraphElement = document.createElement('p');
+                
+            //     // Transfer content from <a> to <p>
+            //     paragraphElement.innerHTML = anchorElement.innerHTML;
+                
+            //     // Replace <a> with <p>
+            //     anchorElement.parentNode.replaceChild(paragraphElement, anchorElement);
+            // });
+
+            // Select all <div class="property-group"> elements
+            // Select all <div class="property-group"> elements
+            var propertyGroupDivs = document.querySelectorAll('div.property-group');
+
+            // Loop through each <div class="property-group"> element
+            propertyGroupDivs.forEach(function(propertyGroupDiv) {
+                // Check if the <h3> within the <div> contains "Other metadata"
+                var h3Element = propertyGroupDiv.querySelector('h3');
+                if (h3Element && h3Element.textContent.trim() === "Contributed Metadata") {
+                    // Select all <a> elements with class "uni-value-link" within the specific <div>
+                    var anchorElements = propertyGroupDiv.querySelectorAll('a.uri-value-link');
+
+                    // Loop through each <a> element
+                    anchorElements.forEach(function(anchorElement) {
+                        // Create a new <p> element
+                        var paragraphElement = document.createElement('p');
+                        
+                        // Transfer content from <a> to <p>
+                        paragraphElement.innerHTML = anchorElement.innerHTML;
+                        
+                        // Replace <a> with <p>
+                        anchorElement.parentNode.replaceChild(paragraphElement, anchorElement);
+                    });
+                }
+            });
+
+
 
             // $('.url-value-link').each(function() {
             //     // Create a new <p> element
@@ -288,8 +347,41 @@ $bannerPosition = ($this->themeSetting('banner_position')) ? str_replace('_','-'
                 metaComment = "The relationship between an Annotation and a Motivation that describes the reason for the Annotation's creation.";
             } else if (dtContent === "Resource class") {
                 metaComment = " A type for the resource. Different types have different default properties attached to them.";
+            } else if (dtContent === "Homosaurus") {
+                metaComment = "An international linked data vocabulary of Lesbian, Gay, Bisexual, Transgender, and Queer (LGBTQ) terms";
+            } else if (dtContent === "Nomenclature") {
+                metaComment = "A structured and controlled list of object terms organized in a classification system to provide a basis for indexing and cataloging collections of human-made objects.";
+            } else if (dtContent === "Getty: Art and Architecture Thesaurus (AAT)") {
+                metaComment = "Generic terms in several languages, relationships, sources, and scope notes for agents, work types, roles, materials, styles, cultures, and techniques related to art, architecture, and other cultural heritage";
+            } else if (dtContent === "Getty: Cultural Object Name Authority (CONA)") {
+                metaComment = "Titles, artist attribution, creation dates, relationships, and location for works both current and historical, documented as items or in groups, whether works are extant, destroyed, or planned but never built";
+            } else if (dtContent === "Getty: Thesaurus of Geographic Names (TGN)") {
+                metaComment = "Places relevant to art, architecture, and related disciplines.";
+            } else if (dtContent === "Getty: Iconography Authority (IA)") {
+                metaComment = "Proper names, relationships, and dates for iconographical narratives, religious or fictional characters, historical events, names of literary works and performing art.";
+            } else if (dtContent === "Getty: Union List of Artist Names (ULAN)") {
+                metaComment = "Names, rich relationships, notes, sources, and biographical information for artists, architects, firms, studios, repositories, and patrons, both individuals and corporate bodies, named and anonymous.";
+            } else if (dtContent === "Library of Congress Linked Data Service") {
+                metaComment = "The Library of Congress Linked Data Service provides both interactive and machine access to commonly used ontologies, controlled vocabularies, and other lists for bibliographic description.";
+            } else if (dtContent === "Research Organization Registry") {
+                metaComment = "ROR is a global, community-led registry of open persistent identifiers for research organizations";
+            } else if (dtContent === "Source Repository Description") {
+                metaComment = "Link to source repository";
+            } else if (dtContent === "Date") {
+                metaComment = "A point or period of time associated with an event in the lifecycle of the resource.";
+            } else if (dtContent === "Category") {
+                metaComment = "A topic that can be used for some purposes.";
+            } else if (dtContent === "Medium") {
+                metaComment = "The material or physical carrier of the resource.";
+            } else if (dtContent === "Publisher") {
+                metaComment = "An entity responsible for making the resource available.";
+            } else if (dtContent === "User Contributed Tag") {
+                metaComment = "Contributed tags during the Crossing Fonds: Participatory Workshop";
+            } else if (dtContent === "User Contributed Subject") {
+                metaComment = "Contributed subjects during the Crossing Fonds: Participatory Workshop";
+            } else if (dtContent === "Sub-theme") {
+                metaComment = "A sub domain that can be used for some purposes.";
             }
-
 
 
               // $(this).append('<span class="hovered-description" style="font-size: 14px; font-weight: normal; font-style: italic;">' + metaComment + '</span>');

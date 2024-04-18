@@ -35,8 +35,20 @@ $mapLabels = [
 
 <div class="contribute-resource conbribute-add container <?= $space && $space !== 'default' ? $space : '' ?>">
 
-    <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : sprintf($translate('Add %s'), $translate($mapLabels['items'])), 2) ?>
-    <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : sprintf($translate('New %s'), $translate($mapLabels['items'])) ?></h3>
+    
+    <h3><?= $resource ? sprintf($translate('Contributing metadata to:'), $translate($mapLabels[$resource->resourceName()])) : sprintf($translate('New %s'), $translate($mapLabels['items'])) ?> <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : sprintf($translate('Add %s'), $translate($mapLabels['items'])), 2) ?></h3>
+
+    <div class="guide"> 
+        <p>Welcome to the contribution page! Here you can submit new metadata through several different databases for controlled vocabulary. 
+        <br><br> To attach a new metadata value, choose your prefered vocabulary and click "Add linked data" to open a text field. Once you have entered your suggestion, a list of options will generate (please allow a moment for the list to populate). Click to select your chosen value. 
+        To contribute more metadata, select "Add linked data" again, either for the same vocabulary or a different one.
+        Click submit at the bottom of the page when done. Pending admin approval, your metadata contribution will be added to the item. </p>
+    </div>
+
+    <br>
+    <br>
+
+    <h3>Vocabularies:</h3>
 
     <div class="messages">
         <?= $this->messages() ?>

@@ -2,19 +2,19 @@
 
 namespace Contribute\Controller\Site;
 
+use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Controller\ContributionTrait;
 use Contribute\Form\ContributeForm;
 use Doctrine\ORM\EntityManager;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-// TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
+// TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the cases), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\File\TempFileFactory;
 use Omeka\File\Uploader;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
 {
@@ -51,22 +51,21 @@ class ContributionController extends AbstractActionController
     protected $string;
 
     public function __construct(
-        Uploader $uploader,
-        TempFileFactory $tempFileFactory,
         EntityManager $entityManager,
-        $basePath,
+        TempFileFactory $tempFileFactory,
+        Uploader $uploader,
+        ?string $basePath,
         array $config
     ) {
-        $this->uploader = $uploader;
-        $this->tempFileFactory = $tempFileFactory;
         $this->entityManager = $entityManager;
+        $this->tempFileFactory = $tempFileFactory;
+        $this->uploader = $uploader;
         $this->basePath = $basePath;
         $this->config = $config;
     }
 
     public function showAction()
     {
-        $site = $this->currentSite();
         $resourceType = $this->params('resource');
         $resourceId = $this->params('id');
 
@@ -80,9 +79,12 @@ class ContributionController extends AbstractActionController
         if (!isset($resourceTypeMap[$resourceType])) {
             return $this->notFoundAction();
         }
+        $site = $this->currentSite();
 
         if ($resourceType !== 'contribution') {
-            $this->forward()->dispatch($resourceTypeMap[$resourceType], [
+            // TODO Use forward dispatch to avoid the redirect, but clear event context and params, else items events are not triggered.
+            // return $this->forward()->dispatch($resourceTypeMap[$resourceType], [
+            return $this->redirect()->toRoute('site/resource-id', [
                 'site-slug' => $this->currentSite()->slug(),
                 'controller' => $resourceType,
                 'action' => 'show',
@@ -112,7 +114,7 @@ class ContributionController extends AbstractActionController
     /**
      * The action "view" is a proxy to "show", that cannot be used because it is
      * used by the resources.
-     * @deprecated Use show.
+     * @deprecated Use show. Will be remove in a future release.
      */
     public function viewAction()
     {
@@ -144,12 +146,9 @@ class ContributionController extends AbstractActionController
         $resourceName = $resourceTypeMap[$resourceType];
 
         $user = $this->identity();
-        $settings = $this->settings();
-        $contributeMode = $settings->get('contribute_mode');
-        $contributeRoles = $settings->get('contribute_roles', []) ?: [];
-        $canEditWithoutToken = $contributeMode === 'open'
-            || ($user && $contributeMode === 'user')
-            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+
+        $canContribute = $this->viewHelpers()->get('canContribute');
+        $canEditWithoutToken = $canContribute();
 
         // TODO Allow to use a token to add a resource.
         // $token = $this->checkToken($resource);
@@ -167,11 +166,13 @@ class ContributionController extends AbstractActionController
         $templates = [];
         $templateLabels = [];
         // Remove non-contributive templates.
-        foreach ($this->api()->search('resource_templates', ['id' => $allowedResourceTemplates])->getContent() as $template) {
-            $contributive = $contributiveData($template);
-            if ($contributive->isContributive()) {
-                $templates[$template->id()] = $template;
-                $templateLabels[$template->id()] = $template->label();
+        if ($allowedResourceTemplates) {
+            foreach ($this->api()->search('resource_templates', ['id' => $allowedResourceTemplates])->getContent() as $template) {
+                $contributive = $contributiveData($template);
+                if ($contributive->isContributive()) {
+                    $templates[$template->id()] = $template;
+                    $templateLabels[$template->id()] = $template->label();
+                }
             }
         }
 
@@ -478,12 +479,9 @@ class ContributionController extends AbstractActionController
         $resource = $api->read($resourceName, ['id' => $resourceId])->getContent();
 
         $user = $this->identity();
-        $settings = $this->settings();
-        $contributeMode = $settings->get('contribute_mode');
-        $contributeRoles = $settings->get('contribute_roles', []) ?: [];
-        $canEditWithoutToken = $contributeMode === 'open'
-            || ($user && $contributeMode === 'user')
-            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+
+        $canContribute = $this->viewHelpers()->get('canContribute');
+        $canEditWithoutToken = $canContribute();
 
         // This is a contribution or a correction.
         $isContribution = $resourceName === 'contributions';
@@ -509,12 +507,12 @@ class ContributionController extends AbstractActionController
             // and to do a new correction.
             if ($token) {
                 $contribution = $api
-                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id(), 'patch' => true, 'sort_by' => 'id', 'sort_order' => 'desc'])
                     ->getContent();
                 $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
             } elseif ($user) {
                 $contribution = $api
-                    ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'owner_id' => $user->getId(), 'patch' => true, 'sort_by' => 'id', 'sort_order' => 'desc'])
                     ->getContent();
                 $currentUrl = $this->url()->fromRoute(null, [], true);
             } else {
@@ -573,6 +571,7 @@ class ContributionController extends AbstractActionController
         $allowUpdateUntilValidation = $allowUpdate === 'validation';
         $isCorrection = !$contribution || $contribution->isPatch();
 
+        // TODO Use method isUpdatable().
         if (!$isCorrection
             && $isModeWrite
             && !$allowUpdateUntilValidation
@@ -749,23 +748,39 @@ class ContributionController extends AbstractActionController
         $space = $this->params('space', 'default');
 
         if (!$this->getRequest()->isPost()) {
-            $this->messenger()->addError(new Message('Deletion can be processed only with a post.')); // @translate
+            $this->messenger()->addError(new PsrMessage('Deletion can be processed only with a post.')); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'show'], true);
         }
 
+        $allowUpdate = $this->settings()->get('contribute_allow_update') ?: 'submission';
+        if ($allowUpdate === 'no') {
+            $this->messenger()->addWarning('A contribution cannot be updated or deleted.'); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+
         $resource = $this->api()->read('contributions', $id)->getContent();
-        if ($resource->isSubmitted()) {
+
+        if ($allowUpdate !== 'validation' && $resource->isSubmitted()) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+        if ($allowUpdate === 'validation' && $resource->isReviewed()) {
+            $this->messenger()->addWarning('This contribution has been reviewed and cannot be deleted.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         $response = $this->api()->delete('contributions', $id);
         if ($response) {
-            $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
+            $this->messenger()->addSuccess('Contribution successfully deleted.'); // @translate
+        } else {
+            $this->messenger()->addError('An issue occurred and the contribution was not deleted.'); // @translate
         }
 
-        // TODO Update route when a main public browse of contributions will be available.
-        return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'browse'], true);
+        // Warning: the js reload the page, so this redirect is not used.
+        return $space === 'guest'
+            ? $this->redirect()->toRoute('site/guest/contribution', ['controller' => 'guest-board', 'action' => 'browse'], true)
+            // TODO Update route when a main public browse of contributions will be available.
+            : $this->redirect()->toRoute('site', [], true);
     }
 
     public function submitAction()
@@ -803,20 +818,26 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $api->read('contributions', ['id' => $resourceId])->getContent();
 
-        if ($contribution->isSubmitted()) {
-            $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
+        $allowUpdate = $this->settings()->get('contribute_allow_update') ?: 'submission';
+
+        if (!$contribution->userIsAllowed('update')) {
+            $this->messenger()->addError('Only the contributor can update a contribution.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
-        if (!$contribution->userIsAllowed('update')) {
-            $this->messenger()->addError('Only the contributor can submit the contribution.'); // @translate
+        if ($allowUpdate !== 'validation' && $contribution->isSubmitted()) {
+            $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+        if ($allowUpdate === 'validation' && $contribution->isReviewed()) {
+            $this->messenger()->addWarning('This contribution has already been reviewed.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         // Validate the contribution with the contribution process.
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
-            $message = new Message(
+            $message = new PsrMessage(
                 'Contribution is not valid: check template.' // @translate
             );
             $this->messenger()->addError($message); // @translate
@@ -944,33 +965,39 @@ class ContributionController extends AbstractActionController
         // Default message.
         switch (true) {
             case $contributionResource && $user:
-                $message = '<p>' . new Message(
-                    'User %1$s has made a contribution for resource #%2$s (%3$s) (action: %4$s).', // @translate
-                    '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                    '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
-                    $contributionResource->displayTitle(),
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'User {user} has made a contribution for resource #{resource} ({title}) (action: {action}).', // @translate
+                    [
+                        'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                        'resource' => '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
+                        'title' => $contributionResource->displayTitle(),
+                        'action' => $actionMsg,
+                    ]
                 ) . '</p>';
                 break;
             case $contributionResource:
-                $message = '<p>' . new Message(
-                    'An anonymous user has made a contribution for resource #%1$s (%2$s) (action: %3$s).', // @translate
-                    '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
-                    $contributionResource->displayTitle(),
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'An anonymous user has made a contribution for resource {resource} ({title}) (action: {action}).', // @translate
+                    [
+                        'resource' => '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
+                        'title' => $contributionResource->displayTitle(),
+                        'action' => $actionMsg,
+                    ]
                 ) . '</p>';
                 break;
             case $user:
-                $message = '<p>' . new Message(
-                    'User %1$s has made a contribution (action: %2$s).', // @translate
-                    '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'User {user} has made a contribution (action: {action}).', // @translate
+                    [
+                        'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                        'action' => $actionMsg
+                    ]
                 ) . '</p>';
                 break;
             default:
-                $message = '<p>' . new Message(
-                    'An anonymous user has made a contribution (action: %1$s).', // @translate
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'An anonymous user has made a contribution (action: {action}).', // @translate
+                    ['action' => $actionMsg]
                 ) . '</p>';
                 break;
         }
@@ -996,7 +1023,7 @@ class ContributionController extends AbstractActionController
         $translate = $this->getPluginManager()->get('translate');
 
         $subject = $settings->get('contribute_author_confirmation_subject') ?: $translate('[Omeka] Contribution');
-        $message = $settings->get('contribute_author_confirmation_body') ?: new Message(
+        $message = $settings->get('contribute_author_confirmation_body') ?: new PsrMessage(
             "Hi,\nThanks for your contribution.\n\nThe administrators will validate it as soon as possible.\n\nSincerely," // @translate
         );
 
@@ -1221,8 +1248,9 @@ class ContributionController extends AbstractActionController
         }
         unset($values, $value);
 
-        $propertyIds = $this->propertyIdsByTerms();
-        $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
+        $easyMeta = $this->easyMeta()();
+        $propertyIds = $easyMeta->propertyIds();
 
         // Process only editable keys.
 
@@ -1254,19 +1282,16 @@ class ContributionController extends AbstractActionController
                 if (!isset($proposal[$term][$index])) {
                     continue;
                 }
-                $type = $value->type();
-                if (!$contributive->isTermDatatype($term, $type)) {
+                $dataType = $value->type();
+                if (!$contributive->isTermDataType($term, $dataType)) {
                     continue;
                 }
 
-                $typeColon = strtok($type, ':');
-                $baseType = null;
-                $uriLabels = [];
-                if ($typeColon === 'customvocab') {
-                    $customVocabId = (int) substr($type, 12);
-                    $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                    $uriLabels = $this->customVocabUriLabels($customVocabId);
-                }
+                $mainType = $easyMeta->dataTypeMain($dataType);
+                $isCustomVocab = substr((string) $dataType, 0, 12) === 'customvocab:';
+                $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+                $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($dataType) : [];
+                $isValueSuggest = $dataType && (substr($dataType, 0, 13) === 'valuesuggest:' || substr($dataType, 0, 16) === 'valuesuggestall:');
 
                 // If a lang was set in the original value, it is kept, else use
                 // the posted one, else use the default one of the template.
@@ -1283,13 +1308,8 @@ class ContributionController extends AbstractActionController
                     }
                 }
 
-                switch ($type) {
+                switch ($mainType) {
                     case 'literal':
-                    case 'boolean':
-                    case 'html':
-                    case 'xml':
-                    case $typeColon === 'numeric':
-                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
                         }
@@ -1302,8 +1322,7 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                    case 'resource':
                         if (!isset($proposal[$term][$index]['@resource'])) {
                             continue 2;
                         }
@@ -1317,14 +1336,22 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'customvocab' && $baseType === 'uri':
-                        $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri'] ?? ''] ?? '';
-                        // no break.
-                    case 'uri':
+                    // TODO Remove the exception of value suggest: why is it specific? In fact, this is the way from the js in form to get uri and label from the user.
+                    case $isValueSuggest:
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
-                        $proposal[$term][$index] += ['@label' => ''];
+                        if (preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                            if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
+                                continue 2;
+                            }
+                            $proposal[$term][$index]['@uri'] = $matches[1];
+                            $proposal[$term][$index]['@label'] = $matches[2];
+                        } elseif (filter_var($proposal[$term][$index]['@uri'], FILTER_VALIDATE_URL)) {
+                            $proposal[$term][$index]['@label'] ??= '';
+                        } else {
+                            continue 2;
+                        }
                         $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
@@ -1332,23 +1359,18 @@ class ContributionController extends AbstractActionController
                             ],
                             'proposed' => [
                                 '@uri' => $proposal[$term][$index]['@uri'],
-                                '@label' => $proposal[$term][$index]['@label'],
+                                '@label' => $proposal[$term][$index]['@label'] ?? '',
                             ],
                         ];
                         break;
-                    case $typeColon === 'valuesuggest':
-                    case $typeColon === 'valuesuggestall':
+                    case 'uri':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
-                        if (!preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
-                            continue 2;
+                        if ($isCustomVocabUri) {
+                            $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri']] ?? '';
                         }
-                        if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
-                            continue 2;
-                        }
-                        $proposal[$term][$index]['@uri'] = $matches[1];
-                        $proposal[$term][$index]['@label'] = $matches[2];
+                        $proposal[$term][$index] += ['@label' => ''];
                         $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
@@ -1402,13 +1424,11 @@ class ContributionController extends AbstractActionController
                 }
             }
 
-            $baseType = null;
-            $uriLabels = [];
-            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $customVocabId = (int) substr($typeTemplate, 12);
-                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                $uriLabels = $this->customVocabUriLabels($customVocabId);
-            }
+            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
+            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
+            $isValueSuggest = $typeTemplate && (substr($typeTemplate, 0, 13) === 'valuesuggest:' || substr($typeTemplate, 0, 16) === 'valuesuggestall:');
 
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
@@ -1418,7 +1438,7 @@ class ContributionController extends AbstractActionController
                 }
 
                 if ($typeTemplate) {
-                    $type = $typeTemplate;
+                    $type = $mainType;
                 } elseif (array_key_exists('@uri', $proposedValue)) {
                     $type = 'uri';
                 } elseif (array_key_exists('@resource', $proposedValue)) {
@@ -1429,7 +1449,7 @@ class ContributionController extends AbstractActionController
                     $type = 'unknown';
                 }
 
-                if (!$contributive->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDataType($term, $typeTemplate ?? $type)) {
                     continue;
                 }
 
@@ -1442,14 +1462,8 @@ class ContributionController extends AbstractActionController
                     $lang = null;
                 }
 
-                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case 'boolean':
-                    case 'html':
-                    case 'xml':
-                    case $typeColon === 'numeric':
-                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;
                         }
@@ -1462,8 +1476,7 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                    case 'resource':
                         if (!isset($proposedValue['@resource']) || !(int) $proposedValue['@resource']) {
                             continue 2;
                         }
@@ -1476,13 +1489,14 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'customvocab' && $baseType === 'uri':
-                        $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
-                        // no break.
                     case 'uri':
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }
+                        if ($isCustomVocabUri) {
+                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri']] ?? '';
+                        }
+                        // no break.
                         $proposedValue += ['@label' => ''];
                         $prop = [
                             'original' => [
@@ -1495,19 +1509,21 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'valuesuggest':
-                    case $typeColon === 'valuesuggestall':
+                    case $isValueSuggest:
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }
-                        if (!preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                        if (preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                            if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
+                                continue 2;
+                            }
+                            $proposedValue['@uri'] = $matches[1];
+                            $proposedValue['@label'] = $matches[2];
+                        } elseif (filter_var($proposal[$term][$index]['@uri'], FILTER_VALIDATE_URL)) {
+                            $proposal[$term][$index]['@label'] ??= '';
+                        } else {
                             continue 2;
                         }
-                        if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
-                            continue 2;
-                        }
-                        $proposedValue['@uri'] = $matches[1];
-                        $proposedValue['@label'] = $matches[2];
                         $prop = [
                             'original' => [
                                 '@uri' => null,
@@ -1582,16 +1598,16 @@ class ContributionController extends AbstractActionController
                 } elseif ($uploaded['error']) {
                     $hasError = true;
                     unset($data['media'][$key]['file']);
-                    $this->messenger()->addError(new Message(
-                        'File %s: %s', // @translate
-                        $key, $uploadErrorCodes[$uploaded['error']]
+                    $this->messenger()->addError(new PsrMessage(
+                        'File {key}: {error}', // @translate
+                        ['key' => $key, 'error' => $uploadErrorCodes[$uploaded['error']]]
                     ));
                 } elseif (!$uploaded['size']) {
                     $hasError = true;
                     unset($data['media'][$key]['file']);
-                    $this->messenger()->addError(new Message(
-                        'Empty file for key %s', // @translate
-                        $key
+                    $this->messenger()->addError(new PsrMessage(
+                        'Empty file for key {key}', // @translate
+                        ['key' => $key]
                     ));
                 } else {
                     // Don't use uploader here, but only in adapter, else
@@ -1602,9 +1618,9 @@ class ContributionController extends AbstractActionController
                     if (!(new \Omeka\File\Validator())->validate($tempFile)) {
                         $hasError = true;
                         unset($data['media'][$key]['file']);
-                        $this->messenger()->addError(new Message(
-                            'Invalid file type for key %s', // @translate
-                            $key
+                        $this->messenger()->addError(new PsrMessage(
+                            'Invalid file type for key {key}', // @translate
+                            ['key' => $key]
                         ));
                     } else {
                         // Take care of automatic rename of uploader (not used).
@@ -1622,6 +1638,28 @@ class ContributionController extends AbstractActionController
             $data['error'] = true;
         }
         return $data;
+    }
+
+    /**
+     * Get the list of uris and labels of a specific custom vocab.
+     *
+     * @see \Contribute\Api\Representation\ContributionRepresentation::customVocabUriLabels()
+     */
+    protected function customVocabUriLabels(string $dataType): array
+    {
+        static $uriLabels = [];
+        if (!isset($uriLabels[$dataType])) {
+            $uriLabels[$dataType] = [];
+            $customVocabId = (int) substr($dataType, 12);
+            if ($customVocabId) {
+                /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
+                $customVocab = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId])->getContent();
+                if ($customVocab) {
+                    $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
+                }
+            }
+        }
+        return $uriLabels[$customVocabId];
     }
 
     /**

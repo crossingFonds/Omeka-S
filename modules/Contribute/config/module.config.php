@@ -41,13 +41,10 @@ return [
             'contributionForm' => View\Helper\ContributionForm::class,
         ],
         'factories' => [
+            'canContribute' => Service\ViewHelper\CanContributeFactory::class,
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
             'contributionLink' => Service\ViewHelper\ContributionLinkFactory::class,
             'contributionSearchFilters' => Service\ViewHelper\ContributionSearchFiltersFactory::class,
-        ],
-        'aliases' => [
-            // @deprecated
-            'linkContribute' => 'contributionLink',
         ],
     ],
     'form_elements' => [
@@ -75,8 +72,6 @@ return [
             'contributiveData' => Mvc\Controller\Plugin\ContributiveData::class,
         ],
         'factories' => [
-            'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
-            'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
             'sendContributionEmail' => Service\ControllerPlugin\SendContributionEmailFactory::class,
         ],
     ],
@@ -269,11 +264,14 @@ return [
         'settings' => [
             'contribute_mode' => 'user',
             'contribute_roles' => [],
+            'contribute_email_regex' => '',
             'contribute_templates' => [
                 // The id is set during install.
                 'Contribution',
             ],
             'contribute_templates_media' => [
+                // The id is set during install.
+                'Contribution File',
             ],
             // Days.
             'contribute_token_duration' => 60,

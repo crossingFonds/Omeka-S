@@ -2,7 +2,7 @@
 
 namespace Contribute\Form;
 
-use AdvancedResourceTemplate\Form\Element as AdvancedResourceTemplateElement;
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 use Omeka\Form\Element as OmekaElement;
@@ -27,7 +27,11 @@ class SettingsFieldset extends Fieldset
                     'element_group' => 'contribution',
                     'label' => 'Contribution mode', // @translate
                     'value_options' => [
-                        'user_token' => 'Authenticated users with token', // @translate
+                        'user_token' => 'Authenticated users with a token', // @translate
+                        'auth_cas' => 'Authenticated users from cas', // @translate
+                        'auth_ldap' => 'Authenticated users from ldap', // @translate
+                        'auth_sso' => 'Authenticated users from sso', // @translate
+                        'email_regex' => 'Authenticated users with an email matching regex below', // @translate
                         'user' => 'Authenticated users', // @translate
                         'role' => 'Roles', // @translate
                         'token' => 'With token', // @translate
@@ -44,7 +48,7 @@ class SettingsFieldset extends Fieldset
                 // This element is a select built with a factory, not a class.
                 // Anyway, it cannot be used simply, because it requires a value.
                 // 'type' => 'Omeka\Form\Element\RoleSelect',
-                'type' => AdvancedResourceTemplateElement\OptionalRoleSelect::class,
+                'type' => CommonElement\OptionalRoleSelect::class,
                 'name' => 'contribute_roles',
                 'options' => [
                     'element_group' => 'contribution',
@@ -61,8 +65,20 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'contribute_email_regex',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Regex on email of users allowed to contribute (option above)', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_email_regex',
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_templates',
-                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
+                'type' => CommonElement\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Resource templates allowed for contribution', // @translate
@@ -79,7 +95,7 @@ class SettingsFieldset extends Fieldset
 
             ->add([
                 'name' => 'contribute_templates_media',
-                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
+                'type' => CommonElement\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Resource templates allowed for media (linked contribution)', // @translate
@@ -147,7 +163,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
 
             ->add([
                 'name' => 'contribute_author_emails',
-                'type' => AdvancedResourceTemplateElement\OptionalPropertySelect::class,
+                'type' => CommonElement\OptionalPropertySelect::class,
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Emails of the author', // @translate
@@ -168,7 +184,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
 
             ->add([
                 'name' => 'contribute_author_confirmations',
-                'type' => AdvancedResourceTemplateElement\OptionalMultiCheckbox::class,
+                'type' => CommonElement\OptionalMultiCheckbox::class,
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Confirmations to author', // @translate

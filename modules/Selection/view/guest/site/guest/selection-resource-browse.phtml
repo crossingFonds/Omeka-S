@@ -93,9 +93,16 @@ $selectedResourceModel = [
 ];
 ?>
 
-<?= $this->pageTitle($selection && ($label = $selection->label()) ? $label : $translate('Selection'), 2) ?>
+<!-- <?= $this->pageTitle($selection && ($label = $selection->label()) ? $label : $translate('Selection'), 2) ?> -->
+<h2>
+    <span class="title">My Curation</span>
+</h2>
 
 <div class="selection-list selections">
+
+    <div class="guide">
+        <p>Welcome to the Curation page! Here you will find items you have chosen using the "Add to selection" button on an individual item. <br><br>Customize your curation by starting with a new group - click "Add a group" and name it in the prompted text box. To slot items into a group, click the item's "Move" button and then select the group from the drop down menu. Organize items further with additional groups, sub-groups, and the ability to move groups entirely in your heirarchy.</p>
+    </div>
 
     <?php if (count($selectionResources)): ?>
     <p class="selection-count"><?= sprintf($translate('%d items'), count($resourcesByType['items'])) ?></p>

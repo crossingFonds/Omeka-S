@@ -1,5 +1,5 @@
 {
-    "o:label": "Contribution",
+    "o:label": "Contribution File",
     "o:resource_template_property": [
         {
             "o:alternate_label": null,
@@ -25,7 +25,7 @@
                     "min_length": "",
                     "max_length": "",
                     "min_values": "",
-                    "max_values": "",
+                    "max_values": "1",
                     "unique_value": "0",
                     "order_by_linked_resource_properties": [],
                     "locked_value": "0",
@@ -85,7 +85,7 @@
                     "min_length": "",
                     "max_length": "",
                     "min_values": "",
-                    "max_values": "",
+                    "max_values": "1",
                     "unique_value": "0",
                     "order_by_linked_resource_properties": [],
                     "locked_value": "0",
@@ -124,7 +124,7 @@
     ],
     "o:data": {
         "use_for_resources": [
-            "items"
+            "media"
         ],
         "require_resource_class": "0",
         "closed_class_list": "0",

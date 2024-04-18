@@ -8,6 +8,7 @@
  */
 
 $plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
@@ -25,9 +26,9 @@ $partial('contribute/site/contribution/asset-include');
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource show');
 ?>
 
-<div class="contribute-resource conbribute-show container <?= $space && $space !== 'default' ? $space : '' ?>">">
+<div class="contribute-resource conbribute-show container <?= $space && $space !== 'default' ? $space : '' ?>">
 
-    <?= $this->pageTitle($contribution->displayTitle(), 2); ?>
+    <?= $this->pageTitle($contribution->displayTitle(), 2) ?>
     <h3><?= $translate('Contribution') ?></h3>
 
     <ul class="contribution-status">
@@ -44,14 +45,14 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 
     <?= $contribution->displayValues() ?>
 
-    <?php if (!$contribution->isSubmitted()): ?>
+    <?php if ($contribution->isUpdatable()): ?>
     <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
         <?php if ($contribution->userIsAllowed('update')): ?>
         <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'edit', $space === 'guest')) ?>"><?= $escape($translate('Edit')) ?></a></li>
         <?php endif; ?>
         <li><a class="o-icon-submit button submit-button submit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'submit', $space === 'guest')) ?>"><?= $escape($translate('Submit')) ?></a></li>
         <?php if ($contribution->userIsAllowed('delete')): ?>
-        <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'delete', $space === 'guest')) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
+        <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'delete', $space === 'guest')) ?>" data-redirect-url="<?= $escapeAttr($url('site', [], true)) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
         <?php endif; ?>
     </ul>
     <?php endif; ?>
@@ -59,3 +60,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
     <?php $this->trigger('view.show.after'); ?>
 
 </div>
+
+<script>
+    console.log("hi");
+</script>

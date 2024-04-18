@@ -2,11 +2,11 @@
 
 namespace Contribute\Controller;
 
+use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Laminas\View\Model\JsonModel;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Stdlib\Message;
 
 /**
  * @todo Move ContributionTrait to controller plugins.
@@ -86,6 +86,17 @@ trait ContributionTrait
 
         try {
             if ($contributionResource) {
+                // During an update of items, keep existing media in any cases.
+                // TODO Move this check in proposalToResourceData(). Do it for item sets and sites too.
+                // @link https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/issues/3
+                if ($resourceName === 'items') {
+                    unset(
+                        $resourceData['o:media'],
+                        $resourceData['o:primary_media'],
+                        $resourceData['o:item_set'],
+                        $resourceData['o:site']
+                    );
+                }
                 $apiOptions['isPartial'] = true;
                 $response = $api
                     ->update($resourceName, $contributionResource->id(), $resourceData, [], $apiOptions);
@@ -147,9 +158,9 @@ trait ContributionTrait
             return null;
         } catch (\Exception $e) {
             $this->entityManager->clear();
-            $message = new Message(
-                'Unable to store the resource of the contribution: %s', // @translate
-                $e->getMessage()
+            $message = new PsrMessage(
+                'Unable to store the resource of the contribution: {message}', // @translate
+                ['message' => $e->getMessage()]
             );
             $this->logger()->err($message);
             if ($useMessenger) {
@@ -185,33 +196,6 @@ trait ContributionTrait
         return $contributionResource;
     }
 
-    /**
-     * Get the list of uris and labels of a specific custom vocab.
-     *
-     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
-     */
-    protected function customVocabUriLabels(int $customVocabId): array
-    {
-        static $uriLabels = [];
-        if (!isset($uriLabels[$customVocabId])) {
-            $uris = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
-            if (!is_array($uris)) {
-                $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
-                $matches = [];
-                $values = [];
-                foreach ($uris as $uri) {
-                    if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                        $values[$matches[1]] = $matches[2];
-                    } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                        $values[$matches[1]] = '';
-                    }
-                }
-            }
-            $uriLabels[$customVocabId] = $values;
-        }
-        return $uriLabels[$customVocabId];
-    }
-
     protected function jsonErrorUnauthorized($message = null, $errors = null): JsonModel
     {
         return $this->returnError($message ?? $this->translate('Unauthorized access.'), 'error', $errors); // @translate
@@ -231,7 +215,7 @@ trait ContributionTrait
     {
         $result = [
             'status' => $statusCode,
-            'message' => $message,
+            'message' => is_object($message) ? $message->setTranslator($this->translator()) : $message,
         ];
         if (is_array($errors) && count($errors)) {
             $result['data'] = $errors;

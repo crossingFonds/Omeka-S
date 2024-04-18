@@ -33,7 +33,12 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 // TODO Replace apiManager by FormElementManager.
 $services = $site->getServiceLocator();
 $apiManager = $services->get('Omeka\ApiManager');
-$customVocabBaseTypes = $plugins->get('customVocabBaseType')();
+$easyMeta = $services->get('EasyMeta');
+/** @deprecated Use easyMeta directly. Will be removed in a future version. */
+$customVocabBaseTypes = [];
+foreach ($easyMeta->dataTypeMainCustomVocabs() as $dataType => $mainType) {
+    $customVocabBaseTypes[substr($dataType, 12)] = $mainType;
+}
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
@@ -56,10 +61,12 @@ $vars = $this->vars()->getArrayCopy();
 $vars['mode'] = isset($form) ? $mode : 'read';
 $vars['indexMedia'] = $indexMedia;
 $vars['fieldsMedia'] = $fieldsMedia;
+$vars['plugins'] = $plugins;
 $vars['url'] = $url;
 $vars['partial'] = $partial;
 $vars['escape'] = $escape;
 $vars['translate'] = $translate;
+$vars['easyMeta'] = $easyMeta;
 $vars['escapeAttr'] = $escapeAttr;
 $vars['apiManager'] = $apiManager;
 $vars['customVocabBaseTypes'] = $customVocabBaseTypes;
