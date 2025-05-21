@@ -1,36 +1,35 @@
-version: "3.3"
-
 services:
   db:
-    container_name: omeka_db
-    image: mysql:8.3
-    platform: linux/amd64
+    container_name: crossingfonds_db
+    image: mariadb:10.11
     ports:
       - "13306:3306"
     volumes:
-      - .data/db:/var/lib/mysql:rw
       - ./docker/custom.cnf:/etc/mysql/conf.d/custom.cnf
-    user: mysql
+      # persistence
+      - .data/db:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: omeka
-      MYSQL_DATABASE: omeka
-      MYSQL_USER: omeka
-      MYSQL_PASSWORD: omeka
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: omeka
+      MARIADB_USER: omeka
+      MARIADB_PASSWORD: password
+    healthcheck:
+      test: mysql omeka -u omeka -ppassword -e 'SELECT 1;' || exit 1
 
-  omeka:
+  app:
+    container_name: crossingfonds_app
     # image:  dhilsfu/crossingfonds
-    container_name: omeka
     build:
       context: .
-    platform: linux/arm64/v8
     ports:
       - "8080:80"
-    restart: always
     volumes:
       - ./config:/var/www/html/config
-      - ./files:/var/www/html/files
-      - ./FileSideload_files:/FileSideload/files
       - ./modules:/var/www/html/modules
       - ./themes:/var/www/html/themes
+      # persistence
+      - .data/files:/var/www/html/files
+      - .data/FileSideload_files:/FileSideload/files
     depends_on:
-      - db
+      db:
+        condition: service_healthy
